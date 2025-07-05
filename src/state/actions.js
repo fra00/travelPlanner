@@ -1,0 +1,15 @@
+// Action Types
+export const START_PLANNING = "START_PLANNING";
+export const LOAD_DATA = "LOAD_DATA";
+export const SWITCH_TAB = "SWITCH_TAB";
+export const UPDATE_OVERVIEW = "UPDATE_OVERVIEW";
+export const UPDATE_FUEL = "UPDATE_FUEL";
+export const UPDATE_GENERAL_EXPENSES = "UPDATE_GENERAL_EXPENSES";
+export const UPDATE_DAY_DETAILS = "UPDATE_DAY_DETAILS";
+export const REORDER_DAYS = "REORDER_DAYS";
+export const DELETE_DAY = "DELETE_DAY";
+export const ADD_DAY = "ADD_DAY";
+export const UPDATE_PARTICIPANTS = "UPDATE_PARTICIPANTS";
+export const RESET_DATA = "RESET_DATA";
+export const UPDATE_CHECKLIST = "UPDATE_CHECKLIST";
+export const SET_VIEW_MODE = "SET_VIEW_MODE";
