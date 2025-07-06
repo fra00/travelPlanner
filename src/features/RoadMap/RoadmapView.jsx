@@ -1,6 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
 import { TripContext } from "../../state/TripProvider";
-import { SET_VIEW_MODE, SWITCH_TAB } from "../../state/actions";
+import {
+  SET_VIEW_MODE,
+  SWITCH_TAB,
+  UPDATE_DAY_DETAILS,
+} from "../../state/actions";
 import RoadMap from "./RoadMap"; // Il componente che mostra la vista giorno per giorno
 import Button from "../../components/ui/Button";
 import {
@@ -38,6 +42,19 @@ function RoadmapView() {
     dispatch({ type: SWITCH_TAB, payload: "planning" });
   };
 
+  const handleAddExpense = (expenseData) => {
+    if (!selectedDay) return;
+    const newExpense = {
+      id: `day_exp_${Date.now()}`,
+      ...expenseData,
+    };
+    const updatedExpenses = [...selectedDay.expenses, newExpense];
+    dispatch({
+      type: UPDATE_DAY_DETAILS,
+      payload: { dayId: selectedDay.id, details: { expenses: updatedExpenses } },
+    });
+  };
+
   return (
     <>
       {selectedDay && (
@@ -45,7 +62,10 @@ function RoadmapView() {
           <AddExpenseModal
             isOpen={isExpenseModalOpen}
             onClose={() => setIsExpenseModalOpen(false)}
-            day={selectedDay}
+            onAddExpense={handleAddExpense}
+            title={`Aggiungi spesa per il Giorno ${
+              selectedDay.id.split("_")[1]
+            }`}
           />
           <AddActivityModal
             isOpen={isActivityModalOpen}
