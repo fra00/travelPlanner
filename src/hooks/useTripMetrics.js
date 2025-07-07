@@ -17,6 +17,16 @@ const calculateStandardDeviation = (data) => {
 export const useTripMetrics = (state) => {
   const { days, fuel, participants, generalExpenses } = state;
 
+  // Ottimizzazione: Memoizza una mappa dei partecipanti per ID per ricerche veloci.
+  // Questo evita di ricalcolare le spese se cambia solo un riferimento all'array
+  // dei partecipanti ma non i loro ID o nomi.
+  const participantMap = useMemo(() => {
+    return participants.reduce((map, p) => {
+      map.set(p.id, p.name || p.email || 'Sconosciuto');
+      return map;
+    }, new Map());
+  }, [participants]);
+
   // Deriva il numero di persone e giorni dalla lunghezza degli array relativi.
   const numPeople = participants.length || 1; // Evita divisione per zero
   const numDays = days.length || 1; // Evita divisione per zero
@@ -64,10 +74,7 @@ export const useTripMetrics = (state) => {
         ? expense.amount * numPeople
         : expense.amount;
       currentTotalCost += calculatedAmount;
-      const paidBy = expense.paidById
-        ? participants.find((p) => p.id === expense.paidById)?.name ||
-          "Sconosciuto"
-        : "N/A";
+      const paidBy = participantMap.get(expense.paidById) || 'N/A';
       allExpensesList.push({
         ...expense,
         dayIndex: "Generale",
@@ -83,10 +90,7 @@ export const useTripMetrics = (state) => {
           ? expense.amount * numPeople
           : expense.amount;
         currentTotalCost += calculatedAmount;
-        const paidBy = expense.paidById
-          ? participants.find((p) => p.id === expense.paidById)?.name ||
-            "Sconosciuto"
-          : "N/A";
+        const paidBy = participantMap.get(expense.paidById) || 'N/A';
         allExpensesList.push({
           ...expense,
           dayIndex: `Giorno ${index + 1}`,
@@ -97,7 +101,7 @@ export const useTripMetrics = (state) => {
     });
 
     return { allExpenses: allExpensesList, totalCost: currentTotalCost };
-  }, [generalExpenses, days, numPeople, estimatedFuelCost, participants]);
+  }, [generalExpenses, days, numPeople, estimatedFuelCost, participantMap]);
 
   // Calcoli per le statistiche testuali
   const costPerPerson = useMemo(
@@ -291,13 +295,13 @@ export const useTripMetrics = (state) => {
 
   // Calcola il bilancio tra i partecipanti
   const balanceTransactions = useMemo(() => {
-    if (participants.length < 2) {
+    if (participantMap.size < 2) {
       return [];
     }
 
     const balances = {};
-    participants.forEach((p) => {
-      balances[p.id] = { name: p.name, balance: 0 };
+    participantMap.forEach((name, id) => {
+      balances[id] = { name, balance: 0 };
     });
 
     // Considera solo le spese effettive con un pagante per il bilancio
@@ -345,17 +349,17 @@ export const useTripMetrics = (state) => {
       if (Math.abs(creditor.balance) < 0.01) j++;
     }
     return transactions;
-  }, [allExpenses, participants, numPeople]);
+  }, [allExpenses, participantMap, numPeople]);
 
   const participantExpenseData = useMemo(() => {
     const spendingByParticipant = {};
 
-    participants.forEach((p) => {
-      spendingByParticipant[p.name] = 0;
+    participantMap.forEach((name) => {
+      spendingByParticipant[name] = 0;
     });
 
     allExpenses.forEach((expense) => {
-      if (expense.paidById && expense.paidByName in spendingByParticipant) {
+      if (expense.paidByName && expense.paidByName !== 'N/A') {
         spendingByParticipant[expense.paidByName] += expense.calculatedAmount;
       }
     });
@@ -383,7 +387,7 @@ export const useTripMetrics = (state) => {
         },
       ],
     };
-  }, [allExpenses, participants]);
+  }, [allExpenses, participantMap]);
 
   return {
     totalDistance,

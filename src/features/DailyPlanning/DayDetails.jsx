@@ -6,6 +6,7 @@ import DayExpensesSection from "./DayExpensesSection";
 import FormInput from "../../components/ui/FormInput";
 import FormSelect from "../../components/ui/FormSelect";
 import RoutePlannerDialog from "./RoutePlannerDialog";
+import { FaSearch } from "react-icons/fa";
 import { ROUTE_TYPES } from "../../utils/constants";
 import Button from "../../components/ui/Button";
 import FormTextArea from "../../components/ui/FormTextArea";
@@ -49,6 +50,15 @@ function DayDetails({ day }) {
     });
   };
 
+  const handleSearchOnBooking = () => {
+    if (day.city) {
+      const bookingUrl = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(
+        day.city
+      )}`;
+      window.open(bookingUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
   const previousDayCity = dayIndex > 0 ? state.days[dayIndex - 1].city : "";
 
   // Estrae il numero del giorno dall'ID per la visualizzazione
@@ -79,15 +89,27 @@ function DayDetails({ day }) {
           value={day.city}
           onChange={handleChange}
         />
-        <FormInput
-          label="Link Struttura/Alloggio:"
-          id="day-structure-link"
-          type="text"
-          name="structureLink"
-          value={day.structureLink}
-          onChange={handleChange}
-          placeholder="Incolla qui il link dell'alloggio"
-        />
+        <div>
+          <FormInput
+            label="Link Struttura/Alloggio:"
+            id="day-structure-link"
+            type="text"
+            name="structureLink"
+            value={day.structureLink}
+            onChange={handleChange}
+            placeholder="Incolla qui il link o cercalo"
+          />
+          <div className="flex space-x-2 mt-2">
+            <Button
+              variant="secondary"
+              onClick={handleSearchOnBooking}
+              disabled={!day.city}
+            >
+              <FaSearch className="mr-2" />
+              Cerca struttura su Booking
+            </Button>
+          </div>
+        </div>
 
         <div>
           <FormInput
@@ -153,7 +175,11 @@ function DayDetails({ day }) {
         />
 
         <div className="pt-4 border-t mt-6">
-          <ActivitiesSection dayId={day.id} activities={day.activities} />
+          <ActivitiesSection
+            dayId={day.id}
+            activities={day.activities}
+            city={day.city}
+          />
         </div>
 
         <div className="pt-4 border-t mt-6">

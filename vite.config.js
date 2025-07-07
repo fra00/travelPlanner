@@ -12,13 +12,8 @@ export default defineConfig({
       manifest: {
         name: "React Travel Planner",
         short_name: "TravelPlanner",
-        description:
-          "Un'applicazione per pianificare i tuoi viaggi, calcolare spese e tempi.",
+        description: "Un assistente per pianificare i tuoi viaggi",
         theme_color: "#ffffff",
-        background_color: "#f8fafc", // bg-slate-50
-        display: "standalone",
-        scope: "/",
-        start_url: "/",
         icons: [
           {
             src: "pwa-192x192.png",
@@ -29,7 +24,6 @@ export default defineConfig({
             src: "pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any maskable",
           },
         ],
       },

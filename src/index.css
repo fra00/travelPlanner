@@ -5,3 +5,18 @@
 body {
   @apply bg-gray-100;
 }
+
+/* Animazione per evidenziare il pulsante di salvataggio quando ci sono modifiche non salvate */
+@keyframes pulse-border {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); /* amber-400 */
+  }
+  70% {
+    box-shadow: 0 0 0 0.5rem rgba(251, 191, 36, 0);
+  }
+}
+
+.pulsing-save-button {
+  animation: pulse-border 2s infinite;
+}

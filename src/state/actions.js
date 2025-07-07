@@ -13,3 +13,6 @@ export const UPDATE_PARTICIPANTS = "UPDATE_PARTICIPANTS";
 export const RESET_DATA = "RESET_DATA";
 export const UPDATE_CHECKLIST = "UPDATE_CHECKLIST";
 export const SET_VIEW_MODE = "SET_VIEW_MODE";
+export const SET_TRIP_ID = "SET_TRIP_ID";
+export const SET_SHOW_SETUP = "SET_SHOW_SETUP";
+export const CLEAR_DIRTY = "CLEAR_DIRTY";

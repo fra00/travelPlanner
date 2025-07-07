@@ -8,8 +8,8 @@ import GeneralExpenses from "../GeneralExpenses/GeneralExpenses";
 import Summary from "../Summary/Summary";
 import Stats from "../Stats/Stats";
 import Checklist from "../Checklist/Checklist";
-import RoadMap from "../RoadMap/RoadMap";
 import DataManager from "../Data/DataManager";
+import DocumentManager from "../Documents/DocumentManager";
 import Button from "../../components/ui/Button";
 import { FaArrowLeft } from "react-icons/fa";
 
@@ -36,6 +36,8 @@ function PlanningView() {
         return <Stats />;
       case "data":
         return <DataManager />;
+      case "documents":
+        return <DocumentManager />;
       default:
         return <Overview />;
     }

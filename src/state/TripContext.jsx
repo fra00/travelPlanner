@@ -13,10 +13,16 @@ import {
   RESET_DATA,
   UPDATE_CHECKLIST,
   SET_VIEW_MODE,
+  CLEAR_DIRTY,
+  SET_SHOW_SETUP,
+  SET_TRIP_ID,
 } from "./actions";
 
 export const initialState = {
   isPlanningStarted: false,
+  tripId: null,
+  isDirty: false,
+  showSetup: false,
   activeTab: "overview",
   description: "",
   viewMode: "planning", // 'planning' or 'roadmap'
@@ -36,8 +42,9 @@ export const tripReducer = (state, action) => {
   switch (action.type) {
     case START_PLANNING:
       return {
-        ...state,
+        ...initialState,
         isPlanningStarted: true,
+        description: action.payload.description,
         participants: action.payload.participants,
         viewMode: "planning", // Vai alla pianificazione dopo il setup
         tripTypes: action.payload.tripTypes,
@@ -58,15 +65,18 @@ export const tripReducer = (state, action) => {
     case LOAD_DATA:
       return {
         ...action.payload,
+        showSetup: false,
+        tripId: action.payload.tripId || null,
         viewMode: "roadmap", // All'avvio, mostra la roadmap
         isPlanningStarted: true,
+        isDirty: false,
       };
     case SWITCH_TAB:
       return { ...state, activeTab: action.payload };
     case UPDATE_OVERVIEW:
     case UPDATE_FUEL:
     case UPDATE_GENERAL_EXPENSES:
-      return { ...state, ...action.payload };
+      return { ...state, ...action.payload, isDirty: true };
     case UPDATE_DAY_DETAILS:
       return {
         ...state,
@@ -75,11 +85,13 @@ export const tripReducer = (state, action) => {
             ? { ...day, ...action.payload.details }
             : day
         ),
+        isDirty: true,
       };
     case REORDER_DAYS:
       return {
         ...state,
         days: action.payload,
+        isDirty: true,
       };
     case DELETE_DAY: {
       const newDays = state.days.filter(
@@ -88,6 +100,7 @@ export const tripReducer = (state, action) => {
       return {
         ...state,
         days: newDays,
+        isDirty: true,
       };
     }
     case ADD_DAY: {
@@ -102,19 +115,26 @@ export const tripReducer = (state, action) => {
         expenses: [],
         routeType: "Strada statale",
       };
-      return { ...state, days: [...state.days, newDay] };
+      return { ...state, days: [...state.days, newDay], isDirty: true };
     }
     case UPDATE_PARTICIPANTS:
       return {
         ...state,
         participants: action.payload.participants,
+        isDirty: true,
       };
     case RESET_DATA:
       return { ...initialState };
     case UPDATE_CHECKLIST:
-      return { ...state, checklist: action.payload };
+      return { ...state, checklist: action.payload, isDirty: true };
+    case SET_SHOW_SETUP:
+      return { ...state, showSetup: action.payload };
     case SET_VIEW_MODE:
       return { ...state, viewMode: action.payload };
+    case SET_TRIP_ID:
+      return { ...state, tripId: action.payload };
+    case CLEAR_DIRTY:
+      return { ...state, isDirty: false };
 
     default:
       return state;

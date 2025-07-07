@@ -1,14 +1,23 @@
 import React, { useState, useContext } from "react";
 import { TripContext } from "../../state/TripProvider";
 import { UPDATE_DAY_DETAILS } from "../../state/actions";
-import { FaTrash, FaMapMarkerAlt } from "react-icons/fa";
+import { FaTrash, FaMapMarkerAlt, FaMapMarkedAlt } from "react-icons/fa";
 import FormInput from "../../components/ui/FormInput";
 import Button from "../../components/ui/Button";
 
-function ActivitiesSection({ dayId, activities }) {
+function ActivitiesSection({ dayId, activities, city }) {
   const { dispatch } = useContext(TripContext);
   const [description, setDescription] = useState("");
   const [mapLink, setMapLink] = useState("");
+
+  const handleSearchPointsOfInterest = () => {
+    if (city) {
+      const mapsUrl = `https://www.google.com/maps/search/punti+di+interesse+a+${encodeURIComponent(
+        city
+      )}`;
+      window.open(mapsUrl, "_blank", "noopener,noreferrer");
+    }
+  };
 
   const handleAddActivity = () => {
     if (description.trim() === "") {
@@ -40,6 +49,16 @@ function ActivitiesSection({ dayId, activities }) {
   return (
     <div>
       <h4 className="text-md font-semibold mb-3">Attività / POI</h4>
+      <div className="mb-4">
+        <Button
+          variant="secondary"
+          onClick={handleSearchPointsOfInterest}
+          disabled={!city}
+        >
+          <FaMapMarkedAlt className="mr-2" />
+          Cerca Punti di Interesse su Maps
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <FormInput
           label="Descrizione"

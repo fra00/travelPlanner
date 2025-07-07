@@ -1,120 +1,81 @@
 import React from "react";
 import Button from "../../components/ui/Button";
 import {
-  FaRoute,
-  FaMoneyBillWave,
-  FaTasks,
-  FaChartBar,
-  FaUsers,
+  FaPlaneDeparture,
+  FaArrowRight,
+  FaUsersCog,
   FaMapMarkedAlt,
+  FaCalculator,
+  FaChartBar,
 } from "react-icons/fa";
 
-const FeatureCard = ({ icon, title, children }) => (
-  <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col items-center text-center">
-    <div className="flex items-center justify-center w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full mb-4">
-      {icon}
+// Un piccolo componente per le schede delle funzionalità per mantenere pulito il componente principale
+function FeatureCard({ icon, title, children }) {
+  return (
+    <div className="bg-white/70 p-6 rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+      <div className="flex items-center mb-4">
+        <div className="bg-indigo-100 text-indigo-600 p-3 rounded-full mr-4">
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold text-slate-800">{title}</h3>
+      </div>
+      <p className="text-slate-600 leading-relaxed">{children}</p>
     </div>
-    <h3 className="text-lg font-semibold text-slate-800 mb-2">{title}</h3>
-    <p className="text-slate-600 text-sm">{children}</p>
-  </div>
-);
+  );
+}
 
 function WelcomePage({ onStart }) {
   return (
-    <div className="bg-sand-100 -m-6 sm:-m-8 p-6 sm:p-8 text-slate-700">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl sm:text-5xl font-bold text-stone-800 mb-4">
-          Benvenuto in React Travel Planner!
+    <div className="space-y-12 py-8">
+      <div className="text-center">
+        <FaPlaneDeparture className="mx-auto text-6xl text-amber-500 mb-4 animate-pulse" />
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-stone-800 mb-3 tracking-tight">
+          React Travel Planner
         </h1>
         <p className="text-lg text-stone-600 max-w-3xl mx-auto">
-          Il tuo assistente di viaggio definitivo per pianificare, organizzare e
-          goderti ogni avventura senza stress.
+          La tua avventura inizia qui. Pianifica itinerari, gestisci le spese
+          di gruppo e tieni tutto sotto controllo in un unico posto. Semplice,
+          intuitivo e sempre con te.
         </p>
       </div>
 
-      <div className="mb-16">
-        <h2 className="text-3xl font-bold text-center text-stone-800 mb-10">
-          Caratteristiche Principali
+      <div className="space-y-8">
+        <h2 className="text-3xl font-bold text-center text-stone-700">
+          Come funziona
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <FeatureCard
-            icon={<FaMapMarkedAlt size={28} />}
-            title="Pianificazione Itinerario"
-          >
-            Crea un itinerario dettagliato giorno per giorno. Aggiungi città,
-            alloggi, distanze e attività per avere sempre tutto sotto controllo.
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <FeatureCard icon={<FaUsersCog size={24} />} title="1. Configura il Viaggio">
+            Inizia definendo i dettagli base: aggiungi i partecipanti e
+            seleziona il tipo di avventura che stai per intraprendere (es. On
+            the Road, Culturale, Relax). Puoi anche caricare un viaggio salvato.
           </FeatureCard>
-          <FeatureCard
-            icon={<FaMoneyBillWave size={28} />}
-            title="Gestione Spese di Gruppo"
-          >
-            Tieni traccia di tutte le spese. Il nostro sistema di bilanciamento
-            automatico ti dirà esattamente chi deve dare soldi a chi.
+          <FeatureCard icon={<FaMapMarkedAlt size={24} />} title="2. Pianifica le Tappe">
+            Aggiungi i giorni del tuo itinerario uno per uno. Per ogni giorno,
+            puoi specificare la città di arrivo, l'alloggio, la distanza
+            percorsa e le attività da non perdere.
           </FeatureCard>
-          <FeatureCard
-            icon={<FaTasks size={28} />}
-            title="Checklist di Viaggio"
-          >
-            Non dimenticare più nulla! Usa la nostra checklist intelligente per
-            preparare i bagagli e le cose da fare prima di partire.
+          <FeatureCard icon={<FaCalculator size={24} />} title="3. Gestisci le Spese">
+            Tieni traccia di tutte le spese, sia quelle generali (carburante,
+            pedaggi) sia quelle giornaliere (cibo, biglietti). Specifica chi ha
+            pagato e se la spesa è da dividere: il bilancio finale sarà
+            automatico.
           </FeatureCard>
-          <FeatureCard
-            icon={<FaChartBar size={28} />}
-            title="Statistiche Dettagliate"
-          >
-            Visualizza grafici e statistiche sul tuo viaggio: costi per persona,
-            distribuzione delle spese, chilometri percorsi e molto altro.
-          </FeatureCard>
-          <FeatureCard
-            icon={<FaUsers size={28} />}
-            title="Collaborazione Semplice"
-          >
-            Pianifica viaggi di gruppo senza fatica. Aggiungi partecipanti e
-            dividi le spese in modo equo e trasparente.
-          </FeatureCard>
-          <FeatureCard icon={<FaRoute size={28} />} title="Roadmap Interattiva">
-            Una volta pianificato, visualizza il tuo viaggio in una bellissima
-            roadmap interattiva, pronta per essere seguita.
+          <FeatureCard icon={<FaChartBar size={24} />} title="4. Analizza e Salva">
+            Visualizza statistiche dettagliate, come il costo per persona e la
+            distribuzione delle spese. Quando sei pronto, salva il tuo piano di
+            viaggio in un file per non perdere i dati.
           </FeatureCard>
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-lg shadow-lg mb-12 max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold text-center text-stone-800 mb-6">
-          Come Iniziare
-        </h2>
-        <ol className="space-y-4 list-decimal list-inside text-slate-600">
-          <li>
-            <strong>Crea il tuo viaggio:</strong> Clicca su "Inizia a
-            Progettare", inserisci i partecipanti e il tipo di viaggio.
-          </li>
-          <li>
-            <strong>Pianifica i giorni:</strong> Nella sezione "Pianificazione",
-            aggiungi i giorni del tuo itinerario, specificando città, alloggi e
-            attività.
-          </li>
-          <li>
-            <strong>Aggiungi le spese:</strong> Inserisci le spese generali (es.
-            voli) e quelle giornaliere (es. cene, biglietti).
-          </li>
-          <li>
-            <strong>Controlla il riepilogo:</strong> Tieni d'occhio il budget
-            totale e il bilancio tra i partecipanti nella sezione "Riepilogo".
-          </li>
-          <li>
-            <strong>Parti!:</strong> Quando sei pronto, passa alla modalità
-            "Roadmap" per una vista chiara e pulita del tuo itinerario giorno
-            per giorno.
-          </li>
-        </ol>
-      </div>
-
-      <div className="text-center">
+      <div className="text-center pt-4">
         <Button
           onClick={onStart}
-          className="px-10 py-4 text-xl font-bold transform hover:scale-105 transition-transform duration-200"
+          size="lg"
+          className="shadow-lg hover:shadow-xl transform hover:scale-105"
         >
-          Inizia a Progettare
+          Inizia a Pianificare Ora
+          <FaArrowRight className="ml-3" />
         </Button>
       </div>
     </div>

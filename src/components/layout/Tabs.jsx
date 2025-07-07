@@ -10,6 +10,7 @@ import {
   FaCog,
   FaTasks,
   FaMapSigns,
+  FaFileArchive,
   FaEllipsisH,
 } from "react-icons/fa";
 
@@ -25,6 +26,7 @@ const TABS = [
   { id: "stats", label: "Statistiche", icon: <FaChartBar /> },
   { id: "data", label: "Dati", icon: <FaCog /> },
   { id: "checklist", label: "Checklist", icon: <FaTasks /> },
+  { id: "documents", label: "Documenti", icon: <FaFileArchive /> },
 ];
 
 // Suddividiamo le schede per la vista mobile

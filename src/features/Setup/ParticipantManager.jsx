@@ -1,19 +1,49 @@
 import React, { useState } from "react";
 import FormInput from "../../components/ui/FormInput";
 import Button from "../../components/ui/Button";
-import { FaTrash, FaUserPlus } from "react-icons/fa";
+import { FaTrash, FaUserPlus, FaSpinner } from "react-icons/fa";
+import { useAuth } from "../Auth/AuthProvider";
+import { getUserIdByEmail } from "../../utils/supabaseClient";
 
 function ParticipantManager({ participants, onParticipantsChange }) {
-  const [name, setName] = useState("");
+  const { user } = useAuth();
+  const [inputValue, setInputValue] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleAdd = () => {
-    if (name.trim()) {
-      const newParticipant = {
-        id: `p_${Date.now()}`,
-        name: name.trim(),
-      };
+  const handleAdd = async () => {
+    const value = inputValue.trim();
+    if (!value) return;
+
+    setError(null);
+    setLoading(true);
+
+    try {
+      let newParticipant;
+      if (user) {
+        // Se l'utente è loggato, cerca l'utente per email
+        const { data: userData, error: userError } = await getUserIdByEmail(
+          value
+        );
+        if (userError || !userData) {
+          throw new Error("Utente non trovato o errore nella ricerca.");
+        }
+        newParticipant = { id: userData.id, name: value };
+      } else {
+        // Se non è loggato, aggiungi come partecipante locale
+        newParticipant = { id: `p_${Date.now()}`, name: value };
+      }
+
+      if (participants.some((p) => p.id === newParticipant.id)) {
+        throw new Error("Questo partecipante è già stato aggiunto.");
+      }
+
       onParticipantsChange([...participants, newParticipant]);
-      setName("");
+      setInputValue("");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,18 +59,23 @@ function ParticipantManager({ participants, onParticipantsChange }) {
     <div>
       <div className="flex gap-2 items-end">
         <FormInput
-          label="Nome Partecipante:"
+          label={user ? "Email Partecipante:" : "Nome Partecipante:"}
           id="participant-name"
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Es. Mario Rossi"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder={user ? "mario.rossi@email.com" : "Es. Mario Rossi"}
           className="flex-grow"
         />
-        <Button onClick={handleAdd} aria-label="Aggiungi partecipante">
-          <FaUserPlus />
+        <Button
+          onClick={handleAdd}
+          disabled={loading}
+          aria-label="Aggiungi partecipante"
+        >
+          {loading ? <FaSpinner className="animate-spin" /> : <FaUserPlus />}
         </Button>
       </div>
+      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
       <ul className="mt-4 space-y-2">
         {participants.map((p) => (
           <li
