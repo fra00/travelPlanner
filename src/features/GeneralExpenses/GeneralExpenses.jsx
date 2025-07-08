@@ -72,6 +72,7 @@ function GeneralExpenses() {
             step="0.01"
             value={state.fuel.costPerLiter}
             onChange={handleFuelChange}
+            description="Inserisci il costo attuale del carburante per litro per una stima più accurata."
           />
           <FormInput
             label="Consumo medio (km/L):"
@@ -82,6 +83,7 @@ function GeneralExpenses() {
             step="0.1"
             value={state.fuel.kmPerLiter}
             onChange={handleFuelChange}
+            description="Il consumo medio del veicolo, espresso in chilometri per litro."
           />
         </div>
         <div className="bg-slate-50 p-4 rounded-lg">

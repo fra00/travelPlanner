@@ -63,11 +63,12 @@ function Overview() {
           selectedOptions={state.tripTypes || [TRIP_TYPES[0]]}
           onChange={handleTripTypesChange}
           maxSelections={3}
+          description="Modifica le categorie del viaggio per personalizzare i suggerimenti della checklist."
         />
         <FormInput
           label={
             <span className="flex items-center">
-              <FaPen className="mr-2 text-gray-400" /> Nome del Viaggio:
+              <FaPen className="mr-2 text-gray-400" /> Nome del Viaggio: <span className="text-red-500 ml-1">*</span>
             </span>
           }
           id="description"
@@ -75,12 +76,13 @@ function Overview() {
           value={state.description}
           onChange={handleChange}
           placeholder="Es. Avventura in Scozia"
+          description="Puoi cambiare il nome del tuo viaggio in qualsiasi momento."
         />
       </div>
 
       <div className="p-4 border rounded bg-gray-50 space-y-4">
         <h2 className="text-xl font-semibold mb-2">
-          Gestisci Partecipanti
+          Gestisci Partecipanti <span className="text-red-500 ml-1">*</span>
         </h2>
         <ParticipantManager
           participants={state.participants.map((p) => ({
@@ -89,6 +91,9 @@ function Overview() {
           }))}
           onParticipantsChange={handleParticipantsChange}
         />
+        <p className="mt-2 text-xs text-gray-500">
+          Aggiungi o rimuovi partecipanti. Se sei loggato, puoi aggiungerli tramite email per condividere il piano.
+        </p>
         {!user && (
           <p className="text-sm text-gray-600 mt-2">
             * Per salvare permanentemente il tuo viaggio e accedervi da altri dispositivi, effettua il login.

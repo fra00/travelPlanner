@@ -45,18 +45,28 @@ function RoutePlannerDialog({
     <Modal isOpen={isOpen} onClose={onClose} title="Genera Link Google Maps">
       <div className="space-y-4">
         <FormInput
-          label="Città di Partenza:"
+          label={
+            <>
+              Città di Partenza: <span className="text-red-500 ml-1">*</span>
+            </>
+          }
           id="start-city"
           value={startCity}
           onChange={(e) => setStartCity(e.target.value)}
           placeholder="Es. Roma"
+          description="La città da cui inizia il percorso del giorno. Viene pre-compilata con la destinazione del giorno precedente."
         />
         <FormInput
-          label="Città di Arrivo:"
+          label={
+            <>
+              Città di Arrivo: <span className="text-red-500 ml-1">*</span>
+            </>
+          }
           id="end-city"
           value={endCity}
           onChange={(e) => setEndCity(e.target.value)}
           placeholder="Es. Milano"
+          description="La destinazione finale del percorso del giorno. Viene pre-compilata con la città principale della tappa."
         />
         <div className="flex justify-end space-x-3 pt-4">
           <Button

@@ -8,6 +8,7 @@ import Setup from "./features/Setup/Setup";
 import AuthStatus from "./features/Auth/AuthStatus";
 import Button from "./components/ui/Button";
 import { FaHome } from "react-icons/fa";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const { state, dispatch } = useContext(TripContext);
@@ -54,6 +55,11 @@ function App() {
       <div
         className={`container mx-auto max-w-5xl ${containerBg} rounded-2xl shadow-lg p-6 sm:p-8 relative`}
       >
+        {/* Aggiungo il componente Toaster qui per renderizzare le notifiche */}
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+        />
         <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-10 flex items-center space-x-2">
           {state.isPlanningStarted && (
             <Button

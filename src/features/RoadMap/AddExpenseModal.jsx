@@ -50,15 +50,24 @@ function AddExpenseModal({ isOpen, onClose, onAddExpense, title }) {
     <Modal isOpen={isOpen} onClose={handleClose} title={title}>
       <div className="space-y-4">
         <FormInput
-          label="Descrizione"
+          label={
+            <>
+              Descrizione <span className="text-red-500 ml-1">*</span>
+            </>
+          }
           id="modal-expense-description"
           type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Descrizione spesa"
+          description="A cosa si riferisce la spesa? Es. 'Pranzo', 'Biglietti museo'."
         />
         <FormInput
-          label="Importo (€)"
+          label={
+            <>
+              Importo (€) <span className="text-red-500 ml-1">*</span>
+            </>
+          }
           id="modal-expense-amount"
           type="number"
           value={amount}
@@ -66,6 +75,7 @@ function AddExpenseModal({ isOpen, onClose, onAddExpense, title }) {
           min="0"
           step="0.01"
           placeholder="Importo"
+          description="Il costo base della spesa. Se è 'per persona', verrà moltiplicato per il numero di partecipanti."
         />
         <FormSelect
           label="Pagato da (Opzionale)"
@@ -73,6 +83,7 @@ function AddExpenseModal({ isOpen, onClose, onAddExpense, title }) {
           value={paidById}
           onChange={(e) => setPaidById(e.target.value)}
           options={participantOptions}
+          description="Chi ha anticipato i soldi? Utile per bilanciare i conti alla fine del viaggio."
         />
         <div className="flex items-center">
           <input
@@ -89,6 +100,10 @@ function AddExpenseModal({ isOpen, onClose, onAddExpense, title }) {
             Per Persona
           </label>
         </div>
+        <p className="-mt-2 text-xs text-gray-500">
+          Seleziona se l'importo inserito è da considerarsi per ogni singolo
+          partecipante.
+        </p>
         <div className="flex justify-end space-x-3 pt-4">
           <Button variant="secondary" onClick={handleClose}>
             Annulla

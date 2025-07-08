@@ -114,7 +114,10 @@ export const deleteTrip = async (tripId, userId) => {
 export const addTripParticipant = async (tripId, userId) => {
   return await supabase
     .from("trip_participants")
-    .insert({ trip_id: tripId, user_id: userId, role: "editor" });
+    // Usa upsert per evitare errori di "chiave duplicata" se il partecipante
+    // (es. il proprietario) è già stato aggiunto da un trigger del database.
+    // La policy RLS dovrebbe impedire a chiunque non sia il proprietario di aggiungere partecipanti.
+    .upsert({ trip_id: tripId, user_id: userId, role: "editor" });
 };
 
 /**

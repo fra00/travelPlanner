@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { TripContext } from "../../state/TripProvider";
+import React, { useState, useContext, useEffect } from "react";
+import { TripContext, initialState } from "../../state/TripProvider";
 import { START_PLANNING, LOAD_DATA } from "../../state/actions";
 import Button from "../../components/ui/Button";
 
@@ -10,6 +10,8 @@ import { TRIP_TYPES } from "../../utils/constants";
 import CheckboxGroup from "../../components/ui/CheckboxGroup";
 import { loadDataFromFile } from "../../utils/fileUtils";
 import SavedTrips from "../Data/SavedTrips";
+import { saveTrip } from "../../utils/supabaseClient";
+import toast from "react-hot-toast";
 import {
   FaUsers,
   FaRoute,
@@ -25,21 +27,20 @@ function Setup() {
 
   // State for new trip setup
   const [tripName, setTripName] = useState("");
-  const [participants, setParticipants] = useState([
-    { id: `p_${Date.now()}`, name: "Partecipante 1" },
-  ]);
+  const [participants, setParticipants] = useState([]);
   const [tripTypes, setTripTypes] = useState([TRIP_TYPES[0]]);
-  const [isLoading, setIsLoading] = useState(false); // For handling API calls
 
   // State for loading trip data
   const [selectedFile, setSelectedFile] = useState(null);
   const [loadError, setLoadError] = useState(null);
-  const handleAddParticipant = async (userId) => {
-    setIsLoading(true);
-    // Assuming you want to do something with the backend here.
-    console.log(`Adding participant with ID: ${userId}`);
-    setIsLoading(false);
-  };
+
+  // Aggiunge automaticamente l'utente loggato come primo partecipante
+  // e previene che venga rimosso se la lista è vuota.
+  useEffect(() => {
+    if (user && participants.length === 0) {
+      setParticipants([{ id: user.id, name: user.email }]);
+    }
+  }, [user, participants.length]);
 
   const handleFileChange = (event) => {
     setLoadError(null);
@@ -48,8 +49,50 @@ function Setup() {
     }
   };
 
-  const handleStart = () => {
-    if (participants.length > 0 && tripName.trim()) {
+  const handleStart = async () => {
+    if (!tripName.trim()) {
+      alert("Per favore, inserisci un nome per il viaggio.");
+      return;
+    }
+
+    // Se l'utente è loggato, crea subito il viaggio nel cloud
+    if (user) {
+      toast.loading("Creazione del viaggio in corso...");
+      try {
+        // Crea uno stato temporaneo per il salvataggio iniziale
+        const initialTripStateForSave = {
+          ...initialState,
+          description: tripName,
+          participants,
+          tripTypes: tripTypes.length > 0 ? tripTypes : [TRIP_TYPES[0]],
+        };
+
+        // saveTrip gestisce l'insert se tripId è null
+        const { data: newTrip, error } = await saveTrip(
+          user.id,
+          initialTripStateForSave,
+          null
+        );
+        if (error) throw error;
+
+        // Avvia la pianificazione con il nuovo tripId
+        dispatch({
+          type: START_PLANNING,
+          payload: {
+            tripId: newTrip.id,
+            description: tripName,
+            participants,
+            tripTypes: tripTypes.length > 0 ? tripTypes : [TRIP_TYPES[0]],
+          },
+        });
+        toast.dismiss();
+        toast.success("Viaggio creato con successo!");
+      } catch (err) {
+        toast.dismiss();
+        toast.error(err.message || "Errore durante la creazione del viaggio.");
+      }
+    } else {
+      // Comportamento per utente non loggato
       dispatch({
         type: START_PLANNING,
         payload: {
@@ -58,8 +101,6 @@ function Setup() {
           tripTypes: tripTypes.length > 0 ? tripTypes : [TRIP_TYPES[0]],
         },
       });
-    } else {
-      alert("Per favore, inserisci un nome per il viaggio.");
     }
   };
 
@@ -103,7 +144,7 @@ function Setup() {
             <div>
               <h3 className="text-lg font-semibold text-slate-700 mb-2 flex items-center">
                 <FaPen className="mr-2 text-gray-400" />
-                Nome del Viaggio
+                Nome del Viaggio <span className="text-red-500 ml-1">*</span>
               </h3>
               <FormInput
                 id="trip-name"
@@ -112,6 +153,7 @@ function Setup() {
                 onChange={(e) => setTripName(e.target.value)}
                 placeholder="Es. Avventura in Scozia"
                 required
+                description="Il titolo principale del tuo viaggio, es. 'Weekend a Roma'."
               />
             </div>
             <div>
@@ -124,25 +166,28 @@ function Setup() {
                 selectedOptions={tripTypes}
                 onChange={setTripTypes}
                 maxSelections={3}
+                description="Scegli fino a 3 categorie che descrivono il tipo di avventura. Questo influenzerà i suggerimenti per la checklist."
               />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-slate-700 mb-2 flex items-center">
                 <FaUsers className="mr-2" />
-                Partecipanti
+                Partecipanti <span className="text-red-500 ml-1">*</span>
               </h3>
               <ParticipantManager
                 participants={participants}
                 onParticipantsChange={setParticipants}
-                onAddParticipant={handleAddParticipant}
               />
+              <p className="mt-2 text-xs text-gray-500">
+                Aggiungi le persone che parteciperanno. Se sei loggato, puoi aggiungerle tramite email per condividere il piano.
+              </p>
             </div>
           </div>
           <div className="mt-6">
             <Button
               onClick={handleStart}
               className="w-full"
-              disabled={!tripName.trim()}
+              disabled={!tripName.trim() || participants.length < 1}
             >
               Inizia Pianificazione
             </Button>

@@ -8,6 +8,7 @@ import {
   FaEye,
   FaFileAlt,
 } from "react-icons/fa";
+import FormInput from "../../components/ui/FormInput";
 
 function DocumentManager() {
   const [documents, setDocuments] = useState([]);
@@ -116,20 +117,33 @@ function DocumentManager() {
         <h3 className="text-lg font-semibold mb-2">
           Carica un nuovo documento
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-          <input
-            type="file"
-            id="document-upload-input"
-            onChange={handleFileChange}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-          />
-          <input
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+          <div>
+            <label
+              htmlFor="document-upload-input"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Seleziona file <span className="text-red-500 ml-1">*</span>
+            </label>
+            <input
+              type="file"
+              id="document-upload-input"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Scegli un file dal tuo dispositivo (PDF, JPG, PNG, etc.).
+            </p>
+          </div>
+          <FormInput
+            label={<>Nome del documento <span className="text-red-500 ml-1">*</span></>}
+            id="document-name-input"
             type="text"
             value={documentName}
             onChange={(e) => setDocumentName(e.target.value)}
-            placeholder="Nome del documento (es. Biglietto Aereo)"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            placeholder="Es. Biglietto Aereo"
             disabled={!selectedFile}
+            description="Un nome facile da ricordare per questo documento."
           />
         </div>
         <Button

@@ -44,6 +44,7 @@ export const tripReducer = (state, action) => {
       return {
         ...initialState,
         isPlanningStarted: true,
+        tripId: action.payload.tripId || null,
         description: action.payload.description,
         participants: action.payload.participants,
         viewMode: "planning", // Vai alla pianificazione dopo il setup

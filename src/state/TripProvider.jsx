@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { tripReducer, initialState } from "./TripContext";
+export { initialState } from "./TripContext";
 import { useAuth } from "../features/Auth/AuthProvider";
 import {
   addTripParticipant,
@@ -70,15 +71,19 @@ export const TripProvider = ({ children }) => {
     const prevIds = new Set(prevParticipants.map((p) => p.id));
 
     const syncChanges = async () => {
-      // Trova partecipanti aggiunti
-      for (const id of currentIds) {
-        if (!prevIds.has(id)) {
-          console.log(`Aggiungo partecipante: ${id} al viaggio ${state.tripId}`);
-          const { error } = await addTripParticipant(state.tripId, id);
-          if (error) {
-            console.error("Errore aggiunta partecipante:", error.message);
-            // TODO: Notificare l'utente dell'errore
-          }
+      const addedParticipants = state.participants.filter(
+        (p) => !prevIds.has(p.id)
+      );
+
+      for (const participant of addedParticipants) {
+        // Aggiungi solo partecipanti con un UUID valido (utenti registrati)
+        // e che non siano il proprietario del viaggio (già aggiunto dal trigger).
+        if (participant.id !== user.id && !participant.id.startsWith("p_")) {
+          console.log(
+            `Aggiungo partecipante: ${participant.id} al viaggio ${state.tripId}`
+          );
+          const { error } = await addTripParticipant(state.tripId, participant.id);
+          if (error) console.error("Errore aggiunta partecipante:", error.message);
         }
       }
 

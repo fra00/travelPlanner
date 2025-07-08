@@ -49,12 +49,17 @@ function AddActivityModal({ isOpen, onClose, day }) {
         </h2>
         <div className="space-y-4">
           <FormInput
-            label="Descrizione"
+            label={
+              <>
+                Descrizione <span className="text-red-500 ml-1">*</span>
+              </>
+            }
             id="activity-modal-description"
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Es. Visita al Colosseo"
+            description="Cosa farai o visiterai? Es. 'Cena al ristorante', 'Visita al museo'."
           />
           <FormInput
             label="Link Mappa (opzionale)"
@@ -63,6 +68,7 @@ function AddActivityModal({ isOpen, onClose, day }) {
             value={mapLink}
             onChange={(e) => setMapLink(e.target.value)}
             placeholder="https://maps.app.goo.gl/..."
+            description="Se l'attività ha un luogo specifico, puoi incollare qui il link di Google Maps."
           />
         </div>
         <div className="mt-6 flex justify-end space-x-3">

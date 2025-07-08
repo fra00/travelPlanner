@@ -116,6 +116,7 @@ function AuthForm() {
             onChange={(e) => setEmail(e.target.value)}
             required
             placeholder="iltuonome@email.com"
+            description="Il tuo indirizzo email per accedere o creare un nuovo account."
           />
           <FormInput
             label="Password (min. 6 caratteri)"
@@ -126,6 +127,7 @@ function AuthForm() {
             required
             placeholder="••••••••"
             minLength="6"
+            description="La tua password. Deve contenere almeno 6 caratteri."
           />
           <Button
             type="submit"

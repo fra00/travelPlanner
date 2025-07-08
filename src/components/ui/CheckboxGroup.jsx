@@ -6,6 +6,7 @@ function CheckboxGroup({
   selectedOptions,
   onChange,
   maxSelections,
+  description,
 }) {
   const handleCheckboxChange = (option) => {
     const newSelectedOptions = [...selectedOptions];
@@ -26,6 +27,9 @@ function CheckboxGroup({
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700">{label}</label>
+      {description && (
+        <p className="mt-1 text-xs text-gray-500">{description}</p>
+      )}
       <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
         {options.map((option) => {
           const isSelected = selectedOptions.includes(option);

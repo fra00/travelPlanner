@@ -74,12 +74,17 @@ function Checklist() {
       {/* Form per aggiungere nuovi elementi */}
       <form onSubmit={handleAddItem} className="flex items-center gap-4 mb-6">
         <FormInput
-          label="Nuovo elemento:"
+          label={
+            <>
+              Nuovo elemento: <span className="text-red-500 ml-1">*</span>
+            </>
+          }
           id="new-checklist-item"
           type="text"
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
           placeholder="Es. Passaporto, caricabatterie..."
+          description="Aggiungi un elemento alla tua lista di cose da fare o da portare."
           className="flex-grow"
         />
         <Button type="submit" className="self-end">

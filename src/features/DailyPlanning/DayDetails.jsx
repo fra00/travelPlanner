@@ -82,12 +82,17 @@ function DayDetails({ day }) {
       </h3>
       <div className="space-y-4">
         <FormInput
-          label="Città di Arrivo:"
+          label={
+            <>
+              Città di Arrivo: <span className="text-red-500 ml-1">*</span>
+            </>
+          }
           id="day-city"
           type="text"
           name="city"
           value={day.city}
           onChange={handleChange}
+          description="La destinazione principale per questo giorno. Verrà usata per cercare alloggi e generare itinerari."
         />
         <div>
           <FormInput
@@ -98,6 +103,7 @@ function DayDetails({ day }) {
             value={day.structureLink}
             onChange={handleChange}
             placeholder="Incolla qui il link o cercalo"
+            description="Salva il link di Booking, Airbnb, o del sito dell'hotel per un accesso rapido."
           />
           <div className="flex space-x-2 mt-2">
             <Button
@@ -120,6 +126,7 @@ function DayDetails({ day }) {
             value={day.mapLink}
             onChange={handleChange}
             placeholder="Incolla il link o generane uno"
+            description="Il link al percorso del giorno. Puoi generarlo automaticamente o incollarne uno personalizzato."
           />
           <div className="flex space-x-2 mt-2">
             <Button
@@ -145,6 +152,7 @@ function DayDetails({ day }) {
           value={day.routeType || "Strada statale"}
           onChange={handleChange}
           options={Object.keys(ROUTE_TYPES)}
+          description="Influisce sulla stima del tempo di viaggio in base alla velocità media."
         />
 
         <FormInput
@@ -155,6 +163,7 @@ function DayDetails({ day }) {
           min="0"
           value={day.distance}
           onChange={handleChange}
+          description="I chilometri totali che prevedi di percorrere in questo giorno."
         />
         <div className="text-sm text-gray-600 -mt-2">
           <p>
@@ -172,6 +181,7 @@ function DayDetails({ day }) {
           value={day.notes}
           onChange={handleChange}
           placeholder="Appunti, ricordi..."
+          description="Spazio libero per annotazioni, promemoria o dettagli importanti per la giornata."
         />
 
         <div className="pt-4 border-t mt-6">

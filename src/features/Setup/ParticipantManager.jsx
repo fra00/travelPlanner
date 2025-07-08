@@ -21,20 +21,25 @@ function ParticipantManager({ participants, onParticipantsChange }) {
     try {
       let newParticipant;
       if (user) {
-        // Se l'utente è loggato, cerca l'utente per email
+        // Se l'utente è loggato, prova a cercare l'utente per email.
         const { data: userData, error: userError } = await getUserIdByEmail(
           value
         );
+
         if (userError || !userData) {
-          throw new Error("Utente non trovato o errore nella ricerca.");
+          // Utente non trovato o errore (es. input non è una mail),
+          // lo aggiungo come partecipante locale.
+          newParticipant = { id: `p_${Date.now()}`, name: value };
+        } else {
+          // Utente trovato, lo aggiungo con il suo ID per la condivisione.
+          newParticipant = { id: userData.id, name: value };
         }
-        newParticipant = { id: userData.id, name: value };
       } else {
         // Se non è loggato, aggiungi come partecipante locale
         newParticipant = { id: `p_${Date.now()}`, name: value };
       }
 
-      if (participants.some((p) => p.id === newParticipant.id)) {
+      if (participants.some((p) => p.id === newParticipant.id || p.name.toLowerCase() === newParticipant.name.toLowerCase())) {
         throw new Error("Questo partecipante è già stato aggiunto.");
       }
 
@@ -48,10 +53,6 @@ function ParticipantManager({ participants, onParticipantsChange }) {
   };
 
   const handleDelete = (id) => {
-    if (participants.length <= 1) {
-      alert("Deve esserci almeno un partecipante al viaggio.");
-      return;
-    }
     onParticipantsChange(participants.filter((p) => p.id !== id));
   };
 
