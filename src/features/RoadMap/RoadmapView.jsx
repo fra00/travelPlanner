@@ -49,7 +49,8 @@ function RoadmapView() {
   const selectedDay = state.days.find((day) => day.id === selectedDayId);
 
   const handleGoToPlanning = () => {
-    if (state.isDirty) {
+    // Mostra l'avviso di salvare solo se l'utente è loggato e ci sono modifiche.
+    if (user && state.isDirty) {
       toast.error("Salva le modifiche prima di tornare alla pianificazione!");
       return;
     }
@@ -177,7 +178,9 @@ function RoadmapView() {
                   disabled={isSaving || isReloading}
                   title="Salva dati su cloud"
                   className={
-                    state.isDirty ? "pulsing-save-button border-amber-500" : ""
+                    user && state.isDirty
+                      ? "pulsing-save-button border-amber-500"
+                      : ""
                   }
                 >
                   {isSaving ? <FaSpinner className="animate-spin" /> : <FaSave />}
