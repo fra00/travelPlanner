@@ -28,6 +28,7 @@ export const initialState = {
   description: "",
   viewMode: "planning", // 'planning' or 'roadmap'
   tripTypes: ["Generico"], // Da stringa ad array
+  isPublic: false,
   overallMapLink: "",
   fuel: {
     costPerLiter: 1.8,
@@ -51,6 +52,7 @@ export const tripReducer = (state, action) => {
         participants: action.payload.participants,
         viewMode: "planning", // Vai alla pianificazione dopo il setup
         tripTypes: action.payload.tripTypes,
+        isPublic: action.payload.isPublic,
         // Inizia sempre con 1 giorno, può essere modificato dopo
         days: Array.from({ length: 1 }, (_, i) => ({
           id: `day_${i + 1}_${Date.now()}`,

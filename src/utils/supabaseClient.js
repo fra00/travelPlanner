@@ -19,9 +19,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
  * @returns {Promise<{data: object, error: object}>}
  */
 export const saveTrip = async (userId, tripData, tripId) => {
-  // L'intero stato del viaggio, inclusi i partecipanti con i loro nomi descrittivi,
-  // viene salvato nel campo JSON `trip_data`.
-  const tripDataToSave = tripData;
+  // Separa isPublic dal resto dei dati del viaggio per salvarlo in una colonna dedicata.
+  const { isPublic, ...tripDataToSave } = tripData;
   const trip_name =
     tripDataToSave.description ||
     `Viaggio del ${new Date().toLocaleDateString()}`;
@@ -30,8 +29,8 @@ export const saveTrip = async (userId, tripData, tripId) => {
     // Aggiorna un viaggio esistente
     const { data, error } = await supabase
       .from("trips")
-      // Salva i dati del viaggio, inclusi i partecipanti
-      .update({ trip_data: tripDataToSave, trip_name })
+      // Salva i dati del viaggio e lo stato di visibilità
+      .update({ trip_data: tripDataToSave, trip_name, is_public: isPublic })
       .eq("id", tripId) // La policy RLS si occuperà di verificare se l'utente ha i permessi
       // .eq("user_id", userId) <-- Rimuoviamo questo controllo
       .select()
@@ -41,7 +40,12 @@ export const saveTrip = async (userId, tripData, tripId) => {
   // Inserisce un nuovo viaggio
   const { data, error } = await supabase
     .from("trips")
-    .insert({ user_id: userId, trip_data: tripDataToSave, trip_name })
+    .insert({
+      user_id: userId,
+      trip_data: tripDataToSave,
+      trip_name,
+      is_public: isPublic,
+    })
     .select()
     .single();
   return { data, error };
@@ -67,7 +71,7 @@ export const getTripsList = async () => {
 export const loadTripData = async (tripId) => {
   const { data, error } = await supabase
     .from("trips")
-    .select("trip_data, id, user_id")
+    .select("trip_data, id, user_id, is_public")
     .eq("id", tripId)
     .single();
 
@@ -79,6 +83,8 @@ export const loadTripData = async (tripId) => {
   const fullTripData = {
     ...data.trip_data,
     tripId: data.id,
+    ownerId: data.user_id,
+    isPublic: data.is_public || false,
   };
 
   if (!fullTripData.participants || fullTripData.participants.length === 0) {

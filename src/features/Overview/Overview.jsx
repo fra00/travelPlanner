@@ -9,15 +9,20 @@ import FormInput from "../../components/ui/FormInput";
 import ParticipantManager from "../Setup/ParticipantManager";
 import { TRIP_TYPES } from "../../utils/constants";
 import CheckboxGroup from "../../components/ui/CheckboxGroup";
-import { FaPen } from "react-icons/fa";
+import { FaPen, FaGlobeAmericas } from "react-icons/fa";
 
 function Overview() {
   const { state, dispatch } = useContext(TripContext);
   const { user } = useAuth();
 
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
-    const payloadValue = type === "number" ? parseInt(value, 10) || 0 : value;
+    const { name, value, type, checked } = e.target;
+    const payloadValue =
+      type === "checkbox"
+        ? checked
+        : type === "number"
+        ? parseInt(value, 10) || 0
+        : value;
     dispatch({
       type: UPDATE_OVERVIEW,
       payload: { [name]: payloadValue },
@@ -66,6 +71,28 @@ function Overview() {
           placeholder="Es. Avventura in Scozia"
           description="Puoi cambiare il nome del tuo viaggio in qualsiasi momento."
         />
+        {user && state.ownerId === user.id && (
+          <div>
+            <h3 className="text-lg font-semibold text-slate-700 mb-2 flex items-center">
+              <FaGlobeAmericas className="mr-2 text-gray-400" />
+              Visibilità
+            </h3>
+            <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-lg">
+              <input
+                type="checkbox"
+                id="is-public-checkbox-overview"
+                name="isPublic"
+                checked={state.isPublic || false}
+                onChange={handleChange}
+                className="h-4 w-4 text-indigo-600 border-gray-300 rounded mt-1"
+              />
+              <div>
+                <label htmlFor="is-public-checkbox-overview" className="block text-sm font-medium text-gray-900">Rendi viaggio pubblico</label>
+                <p className="text-xs text-gray-500">Selezionando questa opzione, il tuo viaggio (senza documenti o checklist) sarà visibile ad altri utenti.</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="p-4 border rounded bg-gray-50 space-y-4">

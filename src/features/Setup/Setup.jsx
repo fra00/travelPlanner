@@ -21,6 +21,7 @@ import {
   FaDatabase,
   FaPen,
   FaCloudDownloadAlt,
+  FaGlobeAmericas,
 } from "react-icons/fa";
 
 function Setup() {
@@ -31,6 +32,7 @@ function Setup() {
   const [tripName, setTripName] = useState("");
   const [participants, setParticipants] = useState([]);
   const [tripTypes, setTripTypes] = useState([TRIP_TYPES[0]]);
+  const [isPublic, setIsPublic] = useState(false);
 
   // State for loading trip data
   const [selectedFile, setSelectedFile] = useState(null);
@@ -67,6 +69,7 @@ function Setup() {
           description: tripName,
           participants,
           tripTypes: tripTypes.length > 0 ? tripTypes : [TRIP_TYPES[0]],
+          isPublic,
         };
 
         // saveTrip gestisce l'insert se tripId è null
@@ -85,6 +88,7 @@ function Setup() {
             description: tripName,
             participants,
             tripTypes: tripTypes.length > 0 ? tripTypes : [TRIP_TYPES[0]],
+            isPublic,
           },
         });
         toast.dismiss();
@@ -102,6 +106,8 @@ function Setup() {
           description: tripName,
           participants,
           tripTypes: tripTypes.length > 0 ? tripTypes : [TRIP_TYPES[0]],
+          // I viaggi locali non possono essere pubblici
+          isPublic: false,
         },
       });
     }
@@ -185,6 +191,27 @@ function Setup() {
                 Aggiungi le persone che parteciperanno. Se sei loggato, puoi aggiungerle tramite email per condividere il piano.
               </p>
             </div>
+            {user && (
+              <div>
+                <h3 className="text-lg font-semibold text-slate-700 mb-2 flex items-center">
+                  <FaGlobeAmericas className="mr-2 text-gray-400" />
+                  Visibilità
+                </h3>
+                <div className="flex items-start space-x-3 p-3 bg-slate-50 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="is-public-checkbox"
+                    checked={isPublic}
+                    onChange={(e) => setIsPublic(e.target.checked)}
+                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded mt-1"
+                  />
+                  <div>
+                    <label htmlFor="is-public-checkbox" className="block text-sm font-medium text-gray-900">Rendi viaggio pubblico</label>
+                    <p className="text-xs text-gray-500">Selezionando questa opzione, il tuo viaggio (senza documenti o checklist) sarà visibile ad altri utenti.</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <div className="mt-6">
             <Button
