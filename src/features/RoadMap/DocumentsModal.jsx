@@ -1,20 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { getDocuments } from "../../utils/db";
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
-import { FaFileDownload, FaEye, FaFileAlt } from "react-icons/fa";
+import { FaFileDownload, FaEye, FaFileAlt, FaInfoCircle } from "react-icons/fa";
+import { TripContext } from "../../state/TripProvider";
 
 function DocumentsModal({ isOpen, onClose }) {
+  const { state } = useContext(TripContext);
+  const { tripId } = state;
   const [documents, setDocuments] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchDocuments = async () => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      return;
+    }
+    if (!tripId) {
+      setDocuments([]); // Svuota i documenti se non c'è un viaggio attivo
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
-      const docs = await getDocuments();
+      const docs = await getDocuments(tripId);
       setDocuments(docs);
     } catch (err) {
       setError("Errore nel caricamento dei documenti.");
@@ -26,7 +36,7 @@ function DocumentsModal({ isOpen, onClose }) {
 
   useEffect(() => {
     fetchDocuments();
-  }, [isOpen]);
+  }, [isOpen, tripId]);
 
   const handleDownload = (doc) => {
     const url = URL.createObjectURL(doc.file);
@@ -59,6 +69,13 @@ function DocumentsModal({ isOpen, onClose }) {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Documenti del Viaggio">
+      <div className="p-3 mb-4 text-xs text-blue-800 rounded-lg bg-blue-50" role="alert">
+        <div className="flex items-center">
+          <FaInfoCircle className="mr-2 flex-shrink-0" />
+          <span className="font-medium">I tuoi documenti sono privati e sicuri.</span>
+        </div>
+        <p className="mt-1 ml-6">I file sono salvati <strong>solo in questo browser</strong> e non sono condivisi con altri partecipanti.</p>
+      </div>
       <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
         {error && <p className="text-sm text-red-600">{error}</p>}
         {loading ? (

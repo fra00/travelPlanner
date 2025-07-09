@@ -14,11 +14,15 @@ function App() {
   const { state, dispatch } = useContext(TripContext);
 
   const handleReset = () => {
-    if (
-      window.confirm(
-        "Sei sicuro di voler tornare alla home? I dati del viaggio verranno cancellati e non potranno essere recuperati."
-      )
-    ) {
+    if (state.isDirty) {
+      if (
+        window.confirm(
+          "Hai delle modifiche non salvate. Sei sicuro di voler tornare alla home? Le modifiche andranno perse."
+        )
+      ) {
+        dispatch({ type: RESET_DATA });
+      }
+    } else {
       dispatch({ type: RESET_DATA });
     }
   };
@@ -60,8 +64,8 @@ function App() {
           position="top-center"
           reverseOrder={false}
         />
-        <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-10 flex items-center space-x-2">
-          {state.isPlanningStarted && (
+        {(state.isPlanningStarted || state.showSetup) && (
+          <div className="absolute top-6 left-6 sm:top-8 sm:left-8 z-10">
             <Button
               variant="secondary"
               size="sm"
@@ -70,7 +74,9 @@ function App() {
             >
               <FaHome />
             </Button>
-          )}
+          </div>
+        )}
+        <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-10">
           <AuthStatus />
         </div>
         {showMainTitle && (

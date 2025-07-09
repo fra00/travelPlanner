@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useAuth } from "../Auth/AuthProvider";
 import { getTripsList, loadTripData, deleteTrip } from "../../utils/supabaseClient";
 import { TripContext } from "../../state/TripProvider";
+import { deleteDocumentsForTrip } from "../../utils/db";
 import { LOAD_DATA } from "../../state/actions";
 import Button from "../../components/ui/Button";
 import { FaSpinner, FaExclamationTriangle, FaRedo, FaTrash } from "react-icons/fa";
@@ -64,6 +65,10 @@ function SavedTrips({ lastSaveTimestamp }) {
       // La policy RLS di Supabase dovrebbe garantire che solo il proprietario possa eliminare.
       const { error } = await deleteTrip(tripId, user.id);
       if (error) throw error;
+
+      // Elimina anche i documenti locali associati a questo viaggio
+      await deleteDocumentsForTrip(tripId);
+
       toast.success("Viaggio eliminato con successo!");
       fetchTrips(); // Aggiorna la lista
     } catch (err) {
@@ -131,14 +136,18 @@ function SavedTrips({ lastSaveTimestamp }) {
                   "Carica"
                 )}
               </Button>
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={() => handleDeleteTrip(trip.id, trip.trip_name)}
-                disabled={deletingTripId === trip.id || loadingTripId === trip.id}
-              >
-                {deletingTripId === trip.id ? <FaSpinner className="animate-spin" /> : <FaTrash />}
-              </Button>
+              {/* Mostra il pulsante Elimina solo se l'utente loggato è il proprietario del viaggio */}
+              {user && user.id === trip.user_id && (
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={() => handleDeleteTrip(trip.id, trip.trip_name)}
+                  disabled={deletingTripId === trip.id || loadingTripId === trip.id}
+                  title="Elimina viaggio"
+                >
+                  {deletingTripId === trip.id ? <FaSpinner className="animate-spin" /> : <FaTrash />}
+                </Button>
+              )}
             </div>
           </li>
         ))}

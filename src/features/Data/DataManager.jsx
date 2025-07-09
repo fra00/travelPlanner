@@ -1,17 +1,21 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { TripContext } from "../../state/TripProvider";
 import { LOAD_DATA, SET_TRIP_ID, CLEAR_DIRTY } from "../../state/actions";
 import { saveDataToFile, loadDataFromFile } from "../../utils/fileUtils";
-import { saveTrip } from "../../utils/supabaseClient";
+import { saveLocalTrip } from "../../utils/db";
+import { saveTrip as saveTripToCloud } from "../../utils/supabaseClient";
 import { useAuth } from "../Auth/AuthProvider";
 import {
   FaSave,
   FaFolderOpen,
   FaCloudUploadAlt,
   FaCloudDownloadAlt,
+  FaDatabase,
 } from "react-icons/fa";
 import Button from "../../components/ui/Button";
 import SavedTrips from "./SavedTrips";
+import LocalSavedTrips from "./LocalSavedTrips";
+import toast from "react-hot-toast";
 
 function DataManager() {
   const { state, dispatch } = useContext(TripContext);
@@ -19,10 +23,12 @@ function DataManager() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [error, setError] = useState(null);
 
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(null);
-  const [saveError, setSaveError] = useState(null);
-  const [lastSaveTimestamp, setLastSaveTimestamp] = useState(null);
+  const [isSavingCloud, setIsSavingCloud] = useState(false);
+  const [lastCloudSaveTimestamp, setLastCloudSaveTimestamp] = useState(null);
+
+  // State per il salvataggio locale
+  const [isSavingLocally, setIsSavingLocally] = useState(false);
+  const [lastLocalSaveTimestamp, setLastLocalSaveTimestamp] = useState(null);
 
   const handleSave = () => {
     const date = new Date().toISOString().slice(0, 10);
@@ -45,8 +51,13 @@ function DataManager() {
     try {
       const data = await loadDataFromFile(selectedFile);
       if (data && typeof data.isPlanningStarted !== "undefined") {
-        // Quando si carica da file, non c'è un tripId di Supabase
-        const payload = { ...data, tripId: null };
+        // Quando si carica da file, non c'è un tripId di Supabase.
+        // Assicuriamoci che ci sia un localId per il salvataggio locale.
+        const payload = {
+          ...data,
+          tripId: null,
+          localId: data.localId || `local_${Date.now()}`,
+        };
         dispatch({ type: LOAD_DATA, payload });
       } else {
         throw new Error("Il file non sembra essere un file di viaggio valido.");
@@ -58,16 +69,13 @@ function DataManager() {
 
   const handleSaveToCloud = async () => {
     if (!user) {
-      setSaveError("Devi essere loggato per salvare i dati sul cloud.");
+      toast.error("Devi essere loggato per salvare i dati sul cloud.");
       return;
     }
-    setIsSaving(true);
-    setSaveSuccess(null);
-    setSaveError(null);
+    setIsSavingCloud(true);
 
     try {
-      // Salva l'intero stato del viaggio, inclusi i partecipanti.
-      const { data, error } = await saveTrip(user.id, state, state.tripId);
+      const { data, error } = await saveTripToCloud(user.id, state, state.tripId);
 
       if (error) {
         throw error;
@@ -79,12 +87,31 @@ function DataManager() {
       }
 
       dispatch({ type: CLEAR_DIRTY });
-      setSaveSuccess("Viaggio salvato con successo sul cloud!");
-      setLastSaveTimestamp(Date.now());
+      toast.success("Viaggio salvato con successo sul cloud!");
+      setLastCloudSaveTimestamp(Date.now());
     } catch (err) {
-      setSaveError(err.message || "Errore durante il salvataggio sul cloud.");
+      toast.error(err.message || "Errore durante il salvataggio sul cloud.");
     } finally {
-      setIsSaving(false);
+      setIsSavingCloud(false);
+    }
+  };
+
+  const handleSaveLocally = async () => {
+    if (!state.localId) {
+      toast.error(
+        "Questo viaggio non ha un ID locale e non può essere salvato. Prova a crearne uno nuovo."
+      );
+      return;
+    }
+    setIsSavingLocally(true);
+    try {
+      await saveLocalTrip(state);
+      toast.success("Viaggio salvato nel browser!");
+      setLastLocalSaveTimestamp(Date.now());
+    } catch (err) {
+      toast.error(err.message || "Errore nel salvataggio locale.");
+    } finally {
+      setIsSavingLocally(false);
     }
   };
 
@@ -102,44 +129,53 @@ function DataManager() {
           <Button onClick={handleSave}>Scarica File Dati</Button>
         </div>
 
-        {/* ... (resto del codice) */}
+        {user ? (
+          <>
+            <div className="p-4 border rounded">
+              <h3 className="text-lg font-semibold mb-2 flex items-center">
+                <FaCloudUploadAlt className="mr-2" /> Salva su Cloud
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Salva il tuo viaggio per accedervi da qualsiasi dispositivo.
+              </p>
+              <Button onClick={handleSaveToCloud} disabled={isSavingCloud}>
+                {isSavingCloud
+                  ? "Salvataggio..."
+                  : state.tripId
+                  ? "Aggiorna su Cloud"
+                  : "Salva su Cloud"}
+              </Button>
+            </div>
 
-        <div className="p-4 border rounded">
-          <h3 className="text-lg font-semibold mb-2 flex items-center">
-            <FaCloudUploadAlt className="mr-2" /> Salva su Cloud
-          </h3>
-          <p className="text-sm text-gray-600 mb-3">
-            {user
-              ? "Salva il tuo viaggio su Supabase per accedervi da qualsiasi dispositivo."
-              : "Accedi per salvare il tuo viaggio sul cloud."}
-          </p>
-          <Button onClick={handleSaveToCloud} disabled={!user || isSaving}>
-            {isSaving
-              ? "Salvataggio..."
-              : state.tripId
-              ? "Aggiorna su Cloud"
-              : "Salva su Cloud"}
-          </Button>
-          {saveSuccess && (
-            <p className="mt-2 text-sm text-green-600">{saveSuccess}</p>
-          )}
-          {saveError && (
-            <p className="mt-2 text-sm text-red-600">{saveError}</p>
-          )}
-        </div>
+            <div className="p-4 border rounded">
+              <h3 className="text-lg font-semibold mb-2 flex items-center">
+                <FaCloudDownloadAlt className="mr-2" /> Carica da Cloud
+              </h3>
+              <SavedTrips lastSaveTimestamp={lastCloudSaveTimestamp} />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="p-4 border rounded">
+              <h3 className="text-lg font-semibold mb-2 flex items-center">
+                <FaDatabase className="mr-2" /> Salva su Browser
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Salva le modifiche nel database di questo browser.
+              </p>
+              <Button onClick={handleSaveLocally} disabled={isSavingLocally}>
+                {isSavingLocally ? "Salvataggio..." : "Salva nel Browser"}
+              </Button>
+            </div>
 
-        <div className="p-4 border rounded">
-          <h3 className="text-lg font-semibold mb-2 flex items-center">
-            <FaCloudDownloadAlt className="mr-2" /> Carica da Cloud
-          </h3>
-          {user ? (
-            <SavedTrips lastSaveTimestamp={lastSaveTimestamp} />
-          ) : (
-            <p className="text-sm text-gray-500">
-              Accedi per visualizzare e caricare i tuoi viaggi salvati.
-            </p>
-          )}
-        </div>
+            <div className="p-4 border rounded">
+              <h3 className="text-lg font-semibold mb-2 flex items-center">
+                <FaDatabase className="mr-2" /> Carica da Browser
+              </h3>
+              <LocalSavedTrips lastSaveTimestamp={lastLocalSaveTimestamp} />
+            </div>
+          </>
+        )}
 
         <div className="p-4 border rounded">
           <h3 className="text-lg font-semibold mb-2 flex items-center">

@@ -1,14 +1,12 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { TripContext } from "../../state/TripProvider";
 import { useAuth } from "../Auth/AuthProvider";
 import {
   UPDATE_OVERVIEW,
   UPDATE_PARTICIPANTS,
-  RESET_DATA,
 } from "../../state/actions";
 import FormInput from "../../components/ui/FormInput";
 import ParticipantManager from "../Setup/ParticipantManager";
-import Button from "../../components/ui/Button";
 import { TRIP_TYPES } from "../../utils/constants";
 import CheckboxGroup from "../../components/ui/CheckboxGroup";
 import { FaPen } from "react-icons/fa";
@@ -41,16 +39,6 @@ function Overview() {
       type: UPDATE_PARTICIPANTS,
       payload: { participants: newParticipants },
     });
-  };
-
-  const handleReset = () => {
-    if (
-      window.confirm(
-        "Sei sicuro di voler cancellare tutti i dati del viaggio? L'azione è irreversibile."
-      )
-    ) {
-      dispatch({ type: RESET_DATA });
-    }
   };
 
   return (
@@ -99,17 +87,6 @@ function Overview() {
             * Per salvare permanentemente il tuo viaggio e accedervi da altri dispositivi, effettua il login.
           </p>
         )}
-      </div>
-
-      <div className="p-4 border rounded bg-red-50 border-red-200 space-y-4">
-        <h2 className="text-xl font-semibold text-red-800">Area Pericolosa</h2>
-        <p className="text-sm text-red-700">
-          Cancellando i dati, l'intero piano di viaggio verrà rimosso e non
-          potrà essere recuperato. Verrai riportato alla schermata iniziale.
-        </p>
-        <Button variant="danger" onClick={handleReset}>
-          Cancella Tutti i Dati del Viaggio
-        </Button>
       </div>
     </div>
   );

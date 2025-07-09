@@ -10,6 +10,7 @@ import { TRIP_TYPES } from "../../utils/constants";
 import CheckboxGroup from "../../components/ui/CheckboxGroup";
 import { loadDataFromFile } from "../../utils/fileUtils";
 import SavedTrips from "../Data/SavedTrips";
+import LocalSavedTrips from "../Data/LocalSavedTrips";
 import { saveTrip } from "../../utils/supabaseClient";
 import toast from "react-hot-toast";
 import {
@@ -17,6 +18,7 @@ import {
   FaRoute,
   FaFolderOpen,
   FaPlusCircle,
+  FaDatabase,
   FaPen,
   FaCloudDownloadAlt,
 } from "react-icons/fa";
@@ -96,6 +98,7 @@ function Setup() {
       dispatch({
         type: START_PLANNING,
         payload: {
+          localId: `local_${Date.now()}`,
           description: tripName,
           participants,
           tripTypes: tripTypes.length > 0 ? tripTypes : [TRIP_TYPES[0]],
@@ -204,6 +207,16 @@ function Setup() {
                   Carica da Cloud
                 </h2>
                 <SavedTrips />
+              </div>
+            )}
+
+            {!user && (
+              <div className="pb-6 border-b mb-6">
+                <h2 className="text-2xl font-bold text-slate-800 mb-4 flex items-center">
+                  <FaDatabase className="mr-3 text-sky-500" />
+                  Carica da Browser
+                </h2>
+                <LocalSavedTrips />
               </div>
             )}
 

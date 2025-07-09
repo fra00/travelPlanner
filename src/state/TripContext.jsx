@@ -21,6 +21,7 @@ import {
 export const initialState = {
   isPlanningStarted: false,
   tripId: null,
+  localId: null, // Aggiunto per i viaggi non salvati nel cloud
   isDirty: false,
   showSetup: false,
   activeTab: "overview",
@@ -45,6 +46,7 @@ export const tripReducer = (state, action) => {
         ...initialState,
         isPlanningStarted: true,
         tripId: action.payload.tripId || null,
+        localId: action.payload.localId || null,
         description: action.payload.description,
         participants: action.payload.participants,
         viewMode: "planning", // Vai alla pianificazione dopo il setup
@@ -67,7 +69,8 @@ export const tripReducer = (state, action) => {
       return {
         ...action.payload,
         showSetup: false,
-        tripId: action.payload.tripId || null,
+        tripId: action.payload.tripId || null, // Viene dal cloud
+        localId: action.payload.localId || null, // Viene da IndexedDB
         viewMode: "roadmap", // All'avvio, mostra la roadmap
         isPlanningStarted: true,
         isDirty: false,

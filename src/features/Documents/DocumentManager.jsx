@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { TripContext } from "../../state/TripProvider";
 import { addDocument, getDocuments, deleteDocument } from "../../utils/db";
 import Button from "../../components/ui/Button";
 import {
@@ -7,10 +8,14 @@ import {
   FaTrash,
   FaEye,
   FaFileAlt,
+  FaInfoCircle,
 } from "react-icons/fa";
 import FormInput from "../../components/ui/FormInput";
 
 function DocumentManager() {
+  const { state } = useContext(TripContext);
+  const { tripId } = state;
+
   const [documents, setDocuments] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [documentName, setDocumentName] = useState("");
@@ -20,7 +25,7 @@ function DocumentManager() {
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      const docs = await getDocuments();
+      const docs = await getDocuments(tripId);
       setDocuments(docs);
     } catch (err) {
       setError("Errore nel caricamento dei documenti.");
@@ -32,7 +37,7 @@ function DocumentManager() {
 
   useEffect(() => {
     fetchDocuments();
-  }, []);
+  }, [tripId]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -57,7 +62,7 @@ function DocumentManager() {
         type: selectedFile.type,
         size: selectedFile.size,
       };
-      await addDocument(newDoc);
+      await addDocument(newDoc, tripId);
       setSelectedFile(null);
       setDocumentName("");
       document.getElementById("document-upload-input").value = ""; // Resetta l'input
@@ -113,6 +118,13 @@ function DocumentManager() {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Gestione Documenti</h2>
+      <div className="p-4 mb-6 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
+        <div className="flex items-center">
+          <FaInfoCircle className="mr-2 flex-shrink-0" />
+          <span className="font-medium">I tuoi documenti sono privati e sicuri.</span>
+        </div>
+        <p className="mt-1 ml-6">I file caricati qui sono salvati <strong>solo nel database di questo browser</strong>. Non vengono sincronizzati sul cloud né condivisi con altri partecipanti.</p>
+      </div>
       <div className="p-4 border rounded bg-gray-50 mb-6">
         <h3 className="text-lg font-semibold mb-2">
           Carica un nuovo documento
@@ -148,7 +160,7 @@ function DocumentManager() {
         </div>
         <Button
           onClick={handleUpload}
-          disabled={!selectedFile || !documentName.trim()}
+          disabled={!selectedFile || !documentName.trim() || !tripId}
           className="mt-3"
         >
           <FaFileUpload className="mr-2" />

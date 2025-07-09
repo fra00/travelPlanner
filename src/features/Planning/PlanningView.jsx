@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { TripContext } from "../../state/TripProvider";
+import { useAuth } from "../Auth/AuthProvider";
 import { SET_VIEW_MODE } from "../../state/actions";
 import Tabs from "../../components/layout/Tabs";
 import Overview from "../Overview/Overview";
@@ -15,6 +16,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 function PlanningView() {
   const { state, dispatch } = useContext(TripContext);
+  const { user } = useAuth();
 
   const handleGoToRoadmap = () => {
     dispatch({ type: SET_VIEW_MODE, payload: "roadmap" });
@@ -51,7 +53,7 @@ function PlanningView() {
           Torna alla RoadMap
         </Button>
       </div>
-      <Tabs />
+      <Tabs highlightDataTab={user && state.isDirty} />
       <div className="mt-6">{renderActiveTab()}</div>
     </div>
   );
