@@ -19,10 +19,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
  * @returns {Promise<{data: object, error: object}>}
  */
 export const saveTrip = async (userId, tripData, tripId) => {
-  // Rimuoviamo i partecipanti dall'oggetto principale, perché vengono gestiti
-  // in una tabella separata.
-  const { participants, ...tripDataToSave } = tripData;
-
+  // L'intero stato del viaggio, inclusi i partecipanti con i loro nomi descrittivi,
+  // viene salvato nel campo JSON `trip_data`.
+  const tripDataToSave = tripData;
   const trip_name =
     tripDataToSave.description ||
     `Viaggio del ${new Date().toLocaleDateString()}`;
@@ -31,7 +30,7 @@ export const saveTrip = async (userId, tripData, tripId) => {
     // Aggiorna un viaggio esistente
     const { data, error } = await supabase
       .from("trips")
-      // Salva solo i dati del viaggio, non i partecipanti
+      // Salva i dati del viaggio, inclusi i partecipanti
       .update({ trip_data: tripDataToSave, trip_name })
       .eq("id", tripId) // La policy RLS si occuperà di verificare se l'utente ha i permessi
       // .eq("user_id", userId) <-- Rimuoviamo questo controllo
@@ -74,18 +73,20 @@ export const loadTripData = async (tripId) => {
 
   if (error) return { data: null, error };
 
-  // Carica i partecipanti separatamente
-  const { data: participants, error: participantsError } =
-    await getTripParticipants(tripId);
-
-  if (participantsError) return { data: null, error: participantsError };
-
-  // Unisce i dati del viaggio con i partecipanti
+  // I partecipanti sono ora salvati in `trip_data`.
+  // Questo codice gestisce il caricamento per i viaggi più vecchi
+  // che potrebbero non avere i partecipanti nel JSON.
   const fullTripData = {
     ...data.trip_data,
     tripId: data.id,
-    participants: participants || [],
   };
+
+  if (!fullTripData.participants || fullTripData.participants.length === 0) {
+    const { data: participants, error: participantsError } =
+      await getTripParticipants(tripId);
+    if (participantsError) return { data: null, error: participantsError };
+    fullTripData.participants = participants || [];
+  }
 
   return { data: fullTripData, error: null };
 };
@@ -152,6 +153,7 @@ export const getTripParticipants = async (tripId) => {
   const formattedParticipants = data.map((p) => ({
     id: p.user_id,
     name: p.email,
+    email: p.email,
   }));
 
   return { data: formattedParticipants, error: null };

@@ -40,7 +40,7 @@ function Setup() {
   // e previene che venga rimosso se la lista è vuota.
   useEffect(() => {
     if (user && participants.length === 0) {
-      setParticipants([{ id: user.id, name: user.email }]);
+      setParticipants([{ id: user.id, name: user.email, email: user.email }]);
     }
   }, [user, participants.length]);
 
