@@ -11,7 +11,7 @@ const initDB = () => {
   if (dbPromise) return dbPromise;
 
   dbPromise = openDB(DB_NAME, DB_VERSION, {
-    upgrade(db, oldVersion) {
+    upgrade(db, oldVersion, newVersion, transaction) {
       if (oldVersion < 1) {
         db.createObjectStore(DOCS_STORE_NAME, {
           keyPath: "id",
@@ -19,7 +19,9 @@ const initDB = () => {
         });
       }
       if (oldVersion < 2) {
-        const store = db.transaction(DOCS_STORE_NAME).objectStore(DOCS_STORE_NAME);
+        // Tutte le operazioni all'interno di un upgrade devono usare la transazione fornita.
+        // Non è possibile avviare una nuova transazione qui.
+        const store = transaction.objectStore(DOCS_STORE_NAME);
         if (!store.indexNames.contains("tripId")) {
           store.createIndex("tripId", "tripId", { unique: false });
         }
