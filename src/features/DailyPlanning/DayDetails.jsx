@@ -28,8 +28,10 @@ function DayDetails({ day }) {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    // Converte in numero se il tipo è 'number', altrimenti usa la stringa
-    const detailValue = type === "number" ? parseInt(value, 10) || 0 : value;
+    // Gestisce i campi numerici permettendo il valore vuoto,
+    // altrimenti lo converte in numero. Usa parseFloat per supportare i decimali.
+    const detailValue =
+      type === "number" ? (value === "" ? "" : parseFloat(value)) : value;
 
     dispatch({
       type: UPDATE_DAY_DETAILS,

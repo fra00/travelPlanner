@@ -13,12 +13,17 @@ import DataManager from "../Data/DataManager";
 import DocumentManager from "../Documents/DocumentManager";
 import Button from "../../components/ui/Button";
 import { FaArrowLeft } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 function PlanningView() {
   const { state, dispatch } = useContext(TripContext);
   const { user } = useAuth();
 
   const handleGoToRoadmap = () => {
+    if (user && state.isDirty) {
+      toast.error("Salva le modifiche prima di tornare alla roadmap!");
+      return;
+    }
     dispatch({ type: SET_VIEW_MODE, payload: "roadmap" });
   };
 
@@ -53,7 +58,7 @@ function PlanningView() {
           Torna alla RoadMap
         </Button>
       </div>
-      <Tabs highlightDataTab={user && state.isDirty} />
+      <Tabs highlightedTabId={user && state.isDirty ? "data" : null} />
       <div className="mt-6">{renderActiveTab()}</div>
     </div>
   );

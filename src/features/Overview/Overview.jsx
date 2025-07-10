@@ -4,12 +4,16 @@ import { useAuth } from "../Auth/AuthProvider";
 import {
   UPDATE_OVERVIEW,
   UPDATE_PARTICIPANTS,
+  LOAD_DATA,
 } from "../../state/actions";
 import FormInput from "../../components/ui/FormInput";
 import ParticipantManager from "../Setup/ParticipantManager";
 import { TRIP_TYPES } from "../../utils/constants";
 import CheckboxGroup from "../../components/ui/CheckboxGroup";
-import { FaPen, FaGlobeAmericas } from "react-icons/fa";
+import { FaPen, FaGlobeAmericas, FaCrown } from "react-icons/fa";
+import Button from "../../components/ui/Button";
+import { saveTrip } from "../../utils/supabaseClient";
+import toast from "react-hot-toast";
 
 function Overview() {
   const { state, dispatch } = useContext(TripContext);
@@ -44,6 +48,48 @@ function Overview() {
       type: UPDATE_PARTICIPANTS,
       payload: { participants: newParticipants },
     });
+  };
+
+  const handleBecomeOwner = async () => {
+    if (!user) return;
+
+    const newParticipants = [...state.participants];
+    const ownerIsParticipant = newParticipants.some((p) => p.id === user.id);
+
+    if (!ownerIsParticipant) {
+      const participantIndex = newParticipants.findIndex(
+        (p) => p.email === user.email
+      );
+      if (participantIndex > -1) {
+        // Aggiorna l'ID del partecipante esistente con l'ID cloud
+        newParticipants[participantIndex] = {
+          ...newParticipants[participantIndex],
+          id: user.id,
+        };
+      } else {
+        // Aggiungi il nuovo proprietario come partecipante
+        newParticipants.push({ id: user.id, name: user.email, email: user.email });
+      }
+    }
+
+    const tripToSave = { ...state, ownerId: user.id, participants: newParticipants };
+
+    toast.loading("Salvataggio in corso...");
+    try {
+      // `saveTrip` gestisce sia la creazione che l'aggiornamento
+      const { data: savedTrip, error } = await saveTrip(user.id, tripToSave, state.tripId);
+      if (error) throw error;
+
+      // Ricarica i dati dal DB per avere uno stato consistente
+      const newTripData = { ...savedTrip.trip_data, tripId: savedTrip.id, ownerId: savedTrip.user_id, isPublic: savedTrip.is_public };
+      dispatch({ type: LOAD_DATA, payload: newTripData });
+
+      toast.dismiss();
+      toast.success("Sei diventato il proprietario e il viaggio è stato salvato sul cloud!");
+    } catch (err) {
+      toast.dismiss();
+      toast.error(err.message || "Errore durante il salvataggio.");
+    }
   };
 
   return (
@@ -94,6 +140,19 @@ function Overview() {
           </div>
         )}
       </div>
+
+      {user && !state.ownerId && (
+        <div className="p-4 border rounded bg-yellow-50 text-yellow-800">
+          <h3 className="font-semibold flex items-center"><FaCrown className="mr-2"/> Reclama Proprietà Viaggio</h3>
+          <p className="text-sm my-2">
+            Questo viaggio è stato caricato da un file e non ha un proprietario.
+            Reclamalo per poterlo salvare sul tuo account e gestirlo.
+          </p>
+          <Button onClick={handleBecomeOwner} variant="secondary">
+            Diventa proprietario
+          </Button>
+        </div>
+      )}
 
       <div className="p-4 border rounded bg-gray-50 space-y-4">
         <h2 className="text-xl font-semibold mb-2">

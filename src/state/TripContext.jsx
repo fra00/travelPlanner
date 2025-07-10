@@ -22,6 +22,7 @@ export const initialState = {
   isPlanningStarted: false,
   tripId: null,
   localId: null, // Aggiunto per i viaggi non salvati nel cloud
+  ownerId: null,
   isDirty: false,
   showSetup: false,
   activeTab: "overview",
@@ -48,6 +49,7 @@ export const tripReducer = (state, action) => {
         isPlanningStarted: true,
         tripId: action.payload.tripId || null,
         localId: action.payload.localId || null,
+        ownerId: action.payload.ownerId || null,
         description: action.payload.description,
         participants: action.payload.participants,
         viewMode: "planning", // Vai alla pianificazione dopo il setup
@@ -138,7 +140,14 @@ export const tripReducer = (state, action) => {
     case SET_VIEW_MODE:
       return { ...state, viewMode: action.payload };
     case SET_TRIP_ID:
-      return { ...state, tripId: action.payload };
+      // This is used to "promote" a local trip to a cloud-saved one.
+      // It receives both the new tripId and confirms the ownerId.
+      return {
+        ...state,
+        tripId: action.payload.tripId,
+        ownerId: action.payload.ownerId,
+        localId: null, // No longer a local-only trip
+      };
     case CLEAR_DIRTY:
       return { ...state, isDirty: false };
 

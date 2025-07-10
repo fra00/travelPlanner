@@ -8,7 +8,7 @@ const Button = ({
   ...props
 }) => {
   const baseClasses =
-    "inline-flex items-center justify-center border border-transparent font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed";
 
   const sizeClasses = {
     sm: "px-2.5 py-1.5 text-xs",
@@ -18,34 +18,24 @@ const Button = ({
 
   const variantClasses = {
     primary:
-      "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 shadow-sm enabled:hover:shadow-md",
+      "border border-transparent bg-amber-500 text-white hover:bg-amber-600 shadow-sm",
     secondary:
-      "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 focus:ring-indigo-500 shadow-sm enabled:hover:shadow-md",
+      "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-sm",
     success:
-      "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 shadow-sm enabled:hover:shadow-md",
-    info:
-      "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm enabled:hover:shadow-md",
+      "border border-transparent bg-green-600 text-white hover:bg-green-700 shadow-sm",
     danger:
-      "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm enabled:hover:shadow-md",
-    // Link variants have no background or shadow by default
-    primaryLink: "text-indigo-600 hover:text-indigo-800 focus:ring-indigo-500",
-    secondaryLink: "text-gray-600 hover:text-gray-800 focus:ring-gray-500",
-    dangerLink: "text-red-600 hover:text-red-800 focus:ring-red-500",
-    infoLink: "text-blue-600 hover:text-blue-800 focus:ring-blue-500",
+      "border border-transparent bg-red-600 text-white hover:bg-red-700 shadow-sm",
+    // Link variants are just styled to look like links but are still buttons.
+    primaryLink: "border-transparent text-amber-600 hover:text-amber-800",
+    secondaryLink: "border-transparent text-slate-600 hover:text-slate-800",
+    dangerLink: "border-transparent text-red-600 hover:text-red-800",
   };
 
-  // Determine if the variant is a "link" type
-  const isLink = variant.toLowerCase().includes("link");
-
-  // Apply appropriate classes based on the variant type
   const classes = `${baseClasses} ${sizeClasses[size]} ${
     variantClasses[variant] || variantClasses.primary
-  } ${className} ${isLink ? "p-0 shadow-none" : ""}`; // Remove padding and shadow for links
+  } ${className}`;
 
-  // Render either a button or a link based on the variant
-  const Component = isLink ? "a" : "button";
-
-  return <Component className={classes} {...props}>{children}</Component>;
+  return <button className={classes} {...props}>{children}</button>;
 };
 
 export default Button;

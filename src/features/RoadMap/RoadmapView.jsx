@@ -112,7 +112,12 @@ function RoadmapView() {
       }
 
       if (data && data.id && !state.tripId) {
-        dispatch({ type: SET_TRIP_ID, payload: data.id });
+        // When saving a local trip for the first time, we get a new tripId
+        // and we are the owner. This action "promotes" the local state.
+        dispatch({
+          type: SET_TRIP_ID,
+          payload: { tripId: data.id, ownerId: user.id },
+        });
       }
 
       dispatch({ type: CLEAR_DIRTY });
@@ -154,8 +159,8 @@ function RoadmapView() {
       <div className="bg-sand-100 -m-6 sm:-m-8 p-6 sm:p-8 min-h-screen">
         <div className="mb-6 pb-4 border-b border-stone-300">
           {/* Row 1: Title and Plan button */}
-          <div className="flex justify-between items-center">
-            <div>
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+            <div className="text-center sm:text-left">
               <h2 className="text-2xl sm:text-3xl font-bold text-stone-700">
                 RoadMap del Viaggio
               </h2>
@@ -163,7 +168,7 @@ function RoadmapView() {
                 <p className="text-stone-500 mt-1">{state.description}</p>
               )}
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center sm:justify-end space-x-2">
               <Button
                 onClick={handleGoToPlanning}
                 className="bg-amber-500 hover:bg-amber-600 text-white"

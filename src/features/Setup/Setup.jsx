@@ -37,6 +37,7 @@ function Setup() {
   // State for loading trip data
   const [selectedFile, setSelectedFile] = useState(null);
   const [loadError, setLoadError] = useState(null);
+  const [lastSaveTimestamp, setLastSaveTimestamp] = useState(null);
 
   // Aggiunge automaticamente l'utente loggato come primo partecipante
   // e previene che venga rimosso se la lista è vuota.
@@ -66,6 +67,7 @@ function Setup() {
         // Crea uno stato temporaneo per il salvataggio iniziale
         const initialTripStateForSave = {
           ...initialState,
+          ownerId: user.id,
           description: tripName,
           participants,
           tripTypes: tripTypes.length > 0 ? tripTypes : [TRIP_TYPES[0]],
@@ -85,6 +87,7 @@ function Setup() {
           type: START_PLANNING,
           payload: {
             tripId: newTrip.id,
+            ownerId: user.id,
             description: tripName,
             participants,
             tripTypes: tripTypes.length > 0 ? tripTypes : [TRIP_TYPES[0]],
@@ -93,6 +96,7 @@ function Setup() {
         });
         toast.dismiss();
         toast.success("Viaggio creato con successo!");
+        setLastSaveTimestamp(Date.now());
       } catch (err) {
         toast.dismiss();
         toast.error(err.message || "Errore durante la creazione del viaggio.");
@@ -103,6 +107,7 @@ function Setup() {
         type: START_PLANNING,
         payload: {
           localId: `local_${Date.now()}`,
+          ownerId: null, // I viaggi locali non hanno un proprietario cloud
           description: tripName,
           participants,
           tripTypes: tripTypes.length > 0 ? tripTypes : [TRIP_TYPES[0]],
@@ -233,7 +238,7 @@ function Setup() {
                   <FaCloudDownloadAlt className="mr-3 text-sky-500" />
                   Carica da Cloud
                 </h2>
-                <SavedTrips />
+                <SavedTrips lastSaveTimestamp={lastSaveTimestamp} />
               </div>
             )}
 

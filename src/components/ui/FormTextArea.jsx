@@ -1,18 +1,28 @@
 import React from "react";
 
-const FormTextArea = ({ label, id, className = "", ...props }) => {
+function FormTextArea({ label, id, description, className, ...props }) {
   return (
     <div className={className}>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-        {label}
-      </label>
-      <textarea
-        id={id}
-        {...props}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-      />
+      {label && (
+        <label
+          htmlFor={id}
+          className="block text-sm font-medium text-slate-700 mb-1"
+        >
+          {label}
+        </label>
+      )}
+      <div className="mt-1">
+        <textarea
+          id={id}
+          className="block w-full rounded-md border-0 py-2 px-3 bg-white text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-amber-500 sm:text-sm disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 disabled:ring-slate-200"
+          {...props}
+        />
+      </div>
+      {description && (
+        <p className="mt-1.5 text-xs text-slate-500">{description}</p>
+      )}
     </div>
   );
-};
+}
 
 export default FormTextArea;

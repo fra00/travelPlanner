@@ -34,7 +34,7 @@ const PRIMARY_TABS_COUNT = 3; // Numero di schede da mostrare sempre su mobile
 const primaryTabs = TABS.slice(0, PRIMARY_TABS_COUNT);
 const secondaryTabs = TABS.slice(PRIMARY_TABS_COUNT);
 
-function Tabs() {
+function Tabs({ highlightedTabId }) {
   const { state, dispatch } = useContext(TripContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -61,6 +61,10 @@ function Tabs() {
     (tab) => tab.id === state.activeTab
   );
 
+  const isSecondaryTabHighlighted =
+    !isSecondaryTabActive &&
+    secondaryTabs.some((tab) => tab.id === highlightedTabId);
+
   return (
     <div className="mb-6">
       {/* Vista Desktop: tutte le schede scorrevoli */}
@@ -74,6 +78,10 @@ function Tabs() {
                 state.activeTab === tab.id
                   ? "bg-white text-indigo-600 shadow"
                   : "text-gray-600 hover:bg-gray-200/75 hover:text-gray-900"
+              } ${
+                highlightedTabId === tab.id && state.activeTab !== tab.id
+                  ? "pulsing-save-button border-amber-500"
+                  : ""
               }`}
             >
               <span className="mr-2 text-base opacity-80">{tab.icon}</span>
@@ -86,20 +94,26 @@ function Tabs() {
       {/* Vista Mobile: schede principali + menu "Altro" */}
       <div className="md:hidden p-1 bg-gray-100 rounded-xl">
         <nav className="flex justify-around items-center" aria-label="Tabs">
-          {primaryTabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabClick(tab.id)}
-              className={`flex-1 inline-flex flex-col items-center px-2 py-2 text-xs font-semibold rounded-lg transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-gray-100 ${
-                state.activeTab === tab.id
-                  ? "bg-white text-indigo-600 shadow"
-                  : "text-gray-600 hover:bg-gray-200/75 hover:text-gray-900"
-              }`}
-            >
-              <span className="mb-1 text-base opacity-80">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
+          {primaryTabs.map((tab) => {
+            const isActive = state.activeTab === tab.id;
+            const isHighlighted = highlightedTabId === tab.id && !isActive;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabClick(tab.id)}
+                className={`flex-1 inline-flex flex-col items-center px-2 py-2 text-xs font-semibold rounded-lg transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-gray-100 ${
+                  isActive
+                    ? "bg-white text-indigo-600 shadow"
+                    : "text-gray-600 hover:bg-gray-200/75 hover:text-gray-900"
+                } ${
+                  isHighlighted ? "pulsing-save-button border-amber-500" : ""
+                }`}
+              >
+                <span className="mb-1 text-base opacity-80">{tab.icon}</span>
+                {tab.label}
+              </button>
+            );
+          })}
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -107,6 +121,10 @@ function Tabs() {
                 isSecondaryTabActive
                   ? "bg-white text-indigo-600 shadow"
                   : "text-gray-600 hover:bg-gray-200/75 hover:text-gray-900"
+              } ${
+                isSecondaryTabHighlighted
+                  ? "pulsing-save-button border-amber-500"
+                  : ""
               }`}
             >
               <span className="mb-1 text-base opacity-80">
@@ -121,10 +139,14 @@ function Tabs() {
                     <button
                       key={tab.id}
                       onClick={() => handleTabClick(tab.id)}
-                      className={`w-full text-left flex items-center px-4 py-2 text-sm ${
+                      className={`w-full text-left flex items-center px-4 py-2 text-sm transition-colors ${
                         state.activeTab === tab.id
                           ? "bg-indigo-50 text-indigo-700 font-semibold"
                           : "text-gray-700 hover:bg-gray-100"
+                      } ${
+                        highlightedTabId === tab.id && state.activeTab !== tab.id
+                          ? "bg-amber-100"
+                          : ""
                       }`}
                     >
                       <span className="mr-3 text-base opacity-80">

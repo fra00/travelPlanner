@@ -28,29 +28,28 @@ function DailyPlanning() {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Pianificazione Giornaliera</h2>
-      {state.days.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1">
-            <DayList
-              days={state.days}
-              selectedDayId={selectedDayId}
-              onSelectDay={setSelectedDayId}
-            />
-          </div>
-          <div className="md:col-span-2">
-            {selectedDay ? (
-              <DayDetails day={selectedDay} />
-            ) : (
-              <p>Seleziona un giorno per vedere i dettagli.</p>
-            )}
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-1">
+          <DayList
+            days={state.days}
+            selectedDayId={selectedDayId}
+            onSelectDay={setSelectedDayId}
+          />
         </div>
-      ) : (
-        <p>
-          Nessun giorno pianificato. Inizia aggiungendo il primo giorno al tuo
-          viaggio!
-        </p>
-      )}
+        <div className="md:col-span-2">
+          {selectedDay ? (
+            <DayDetails day={selectedDay} />
+          ) : (
+            <div className="p-4 border rounded h-full flex items-center justify-center bg-gray-50">
+              <p className="text-gray-500 text-center">
+                Nessun giorno pianificato.
+                <br />
+                Aggiungi il primo giorno dalla colonna a sinistra per iniziare.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

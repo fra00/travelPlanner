@@ -137,7 +137,7 @@ function SavedTrips({ lastSaveTimestamp }) {
                 )}
               </Button>
               {/* Mostra il pulsante Elimina solo se l'utente loggato è il proprietario del viaggio */}
-              {user && user.id === trip.user_id && (
+              {trip.is_owner && (
                 <Button
                   size="sm"
                   variant="danger"
