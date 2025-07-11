@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { TripContext } from "./state/TripProvider";
 import { RESET_DATA, SET_SHOW_SETUP } from "./state/actions";
 import PlanningView from "./features/Planning/PlanningView";
@@ -12,6 +12,45 @@ import { Toaster } from "react-hot-toast";
 
 function App() {
   const { state, dispatch } = useContext(TripContext);
+
+  // Effetto per aggiornare dinamicamente i tag SEO
+  useEffect(() => {
+    const defaultTitle = "React Travel Planner - Pianifica il tuo prossimo viaggio";
+    const defaultDescription =
+      "Pianifica itinerari, gestisci le spese di gruppo e tieni tutto sotto controllo in un unico posto. Semplice, intuitivo e sempre con te.";
+
+    const updateMetaTag = (property, content) => {
+      let element = document.querySelector(`meta[name="${property}"], meta[property="${property}"]`);
+      if (!element) {
+        element = document.createElement("meta");
+        if (property.startsWith("og:") || property.startsWith("twitter:")) {
+          element.setAttribute("property", property);
+        } else {
+          element.setAttribute("name", property);
+        }
+        document.head.appendChild(element);
+      }
+      element.setAttribute("content", content);
+    };
+
+    if (state.isPlanningStarted && state.description) {
+      const newTitle = `${state.description} - React Travel Planner`;
+      const newDescription = `Dettagli e pianificazione per il viaggio: ${state.description}. Gestisci itinerari, spese e checklist con React Travel Planner.`;
+      document.title = newTitle;
+      updateMetaTag("description", newDescription);
+      updateMetaTag("og:title", newTitle);
+      updateMetaTag("twitter:title", newTitle);
+      updateMetaTag("og:description", newDescription);
+      updateMetaTag("twitter:description", newDescription);
+    } else {
+      document.title = defaultTitle;
+      updateMetaTag("description", defaultDescription);
+      updateMetaTag("og:title", defaultTitle);
+      updateMetaTag("twitter:title", defaultTitle);
+      updateMetaTag("og:description", defaultDescription);
+      updateMetaTag("twitter:description", defaultDescription);
+    }
+  }, [state.isPlanningStarted, state.description]);
 
   const handleReset = () => {
     if (state.isDirty) {
