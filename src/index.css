@@ -3,7 +3,12 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gray-100;
+  background-image: url("/background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  backdrop-filter: blur(5px);
+  background-attachment: fixed; /* Mantiene lo sfondo fisso durante lo scroll */
 }
 
 /* Animazione per evidenziare il pulsante di salvataggio quando ci sono modifiche non salvate */

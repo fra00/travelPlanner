@@ -27,8 +27,6 @@ function App() {
     }
   };
 
-  const isRoadmapView = state.viewMode === "roadmap";
-
   const renderContent = () => {
     if (!state.isPlanningStarted) {
       if (state.showSetup) {
@@ -46,18 +44,15 @@ function App() {
     return <PlanningView />;
   };
 
-  const containerBg =
-    isRoadmapView || !state.isPlanningStarted ? "bg-sand-100" : "bg-white";
   const titleColor =
-    isRoadmapView || !state.isPlanningStarted
+    state.viewMode === "roadmap" || !state.isPlanningStarted
       ? "text-stone-700"
       : "text-slate-800";
-  const showMainTitle = state.isPlanningStarted;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8">
+    <div className="min-h-screen py-8">
       <div
-        className={`container mx-auto max-w-5xl ${containerBg} rounded-2xl shadow-lg p-6 sm:p-8 relative`}
+        className="container mx-auto max-w-5xl bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 sm:p-8 relative"
       >
         {/* Aggiungo il componente Toaster qui per renderizzare le notifiche */}
         <Toaster
@@ -79,7 +74,7 @@ function App() {
         <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-10">
           <AuthStatus />
         </div>
-        {showMainTitle && (
+        {state.isPlanningStarted && (
           <h1
             className={`text-3xl sm:text-4xl font-bold mb-6 text-center ${titleColor}`}
           >
